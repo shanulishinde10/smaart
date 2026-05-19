@@ -3,160 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Smart Attendance System</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard — SMAART</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Dark theme Chart.js defaults (set before reports.js DOMContentLoaded fires)
+        window.addEventListener('load', () => {
+            if (typeof Chart !== 'undefined') {
+                Chart.defaults.color = '#94a3b8';
+                Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="app-wrapper">
+
         <!-- Sidebar -->
-        <aside class="sidebar shadow-sm">
+        <aside class="sidebar">
             <a class="sidebar-brand" href="index.html">
-                <i class="bi bi-person-bounding-box me-2"></i>
-                Smart Attendance
+                <div class="sidebar-logo-icon">
+                    <i class="bi bi-person-bounding-box"></i>
+                </div>
+                SMAART
             </a>
-            <div class="nav flex-column px-3 py-4 gap-2 flex-grow-1">
-                <a class="nav-link" href="index.html"><i class="bi bi-house me-2"></i> Home</a>
-                <a class="nav-link" href="register.html"><i class="bi bi-person-plus me-2"></i> Register</a>
-                <a class="nav-link" href="attendance.html"><i class="bi bi-camera me-2"></i> Scanner</a>
-                <a class="nav-link active" href="reports.html"><i class="bi bi-graph-up me-2"></i> Dashboard</a>
-            </div>
-            <div class="p-3 mt-auto">
-                <a class="btn btn-primary w-100 shadow-sm" href="attendance.html"><i class="bi bi-lightning-charge me-1"></i> Quick Scan</a>
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+                <a class="nav-link" href="register.html">
+                    <i class="bi bi-person-plus"></i> Register
+                </a>
+                <a class="nav-link" href="attendance.html">
+                    <i class="bi bi-camera"></i> Scanner
+                </a>
+                <a class="nav-link active" href="reports.html">
+                    <i class="bi bi-bar-chart-line"></i> Dashboard
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a class="btn btn-primary w-100" href="attendance.html">
+                    <i class="bi bi-lightning-charge"></i> Quick Scan
+                </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content overflow-auto">
+        <main class="main-content">
 
-    <div class="container-fluid px-4 py-4" style="max-width: 1400px;">
-        
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0">Admin Dashboard</h2>
-            <div class="d-flex gap-2">
-                <input type="date" id="filterDate" class="form-control">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <div class="badge badge-purple" style="margin-bottom:0.5rem;">
+                        <i class="bi bi-bar-chart-line"></i> Analytics
+                    </div>
+                    <h2 class="page-title">Admin Dashboard</h2>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span class="live-dot"></span>
+                        <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);">Live updates</span>
+                    </div>
+                    <input type="date" id="filterDate" class="form-control" style="width:auto;padding:0.4rem 0.75rem;font-size:0.82rem;">
+                </div>
             </div>
-        </div>
 
-        <!-- Class Sections -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card p-3 h-100">
-                    <div class="text-uppercase text-muted fw-bold" style="font-size:0.75rem;">Class Section</div>
-                    <div class="fs-4 fw-bold my-1 text-dark">B.Tech (CS)</div>
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                        <div>
-                            <span class="d-block text-muted" style="font-size:0.75rem;">ON-TIME</span>
-                            <span class="fs-5 fw-bold text-success" id="btechOnTime">0</span>
-                        </div>
-                        <div class="text-end">
-                            <span class="d-block text-muted" style="font-size:0.75rem;">LATE</span>
-                            <span class="fs-5 fw-bold text-danger" id="btechLate">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card p-3 h-100">
-                    <div class="text-uppercase text-muted fw-bold" style="font-size:0.75rem;">Class Section</div>
-                    <div class="fs-4 fw-bold my-1 text-dark">BCA (A)</div>
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                        <div>
-                            <span class="d-block text-muted" style="font-size:0.75rem;">ON-TIME</span>
-                            <span class="fs-5 fw-bold text-success" id="bcaOnTime">0</span>
-                        </div>
-                        <div class="text-end">
-                            <span class="d-block text-muted" style="font-size:0.75rem;">LATE</span>
-                            <span class="fs-5 fw-bold text-danger" id="bcaLate">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card p-3 h-100">
-                    <div class="text-uppercase text-muted fw-bold" style="font-size:0.75rem;">Class Section</div>
-                    <div class="fs-4 fw-bold my-1 text-dark">MCA</div>
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                        <div>
-                            <span class="d-block text-muted" style="font-size:0.75rem;">ON-TIME</span>
-                            <span class="fs-5 fw-bold text-success" id="mcaOnTime">0</span>
-                        </div>
-                        <div class="text-end">
-                            <span class="d-block text-muted" style="font-size:0.75rem;">LATE</span>
-                            <span class="fs-5 fw-bold text-danger" id="mcaLate">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card p-3 h-100 bg-primary text-white border-0">
-                    <div class="text-uppercase fw-bold" style="font-size:0.75rem; opacity: 0.8;">Total Daily Attendance</div>
-                    <div class="fs-2 fw-bold mt-2 mb-1" id="systemLoad">0</div>
-                    <div class="mt-auto">
-                        <div class="d-flex justify-content-between mb-1" style="font-size: 0.8rem; opacity: 0.9;">
-                            <span>Completion</span>
-                            <span id="loadText">0%</span>
-                        </div>
-                        <div class="progress" style="height: 6px; background: rgba(255,255,255,0.2);">
-                            <div class="progress-bar bg-white" id="loadBar" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <!-- Content -->
+            <div class="page-content">
 
-        <div class="row g-4 mb-4">
-            <div class="col-md-8">
-                <div class="card h-100">
-                    <div class="mb-4">
-                        <h5 class="mb-0 text-muted"><i class="bi bi-graph-up me-2"></i> Attendance Activity</h5>
-                    </div>
-                    <div style="height: 300px; width: 100%;">
-                        <canvas id="attendanceChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <h5 class="text-muted mb-4"><i class="bi bi-pie-chart me-2"></i> Distribution</h5>
-                    <div style="height: 250px; width: 100%; display: flex; justify-content: center; align-items: center;">
-                        <canvas id="distributionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <!-- Bento Grid: Class Stats -->
+                <div class="bento-grid">
 
-        <div class="card overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-                <h5 class="mb-0 text-muted"><i class="bi bi-table me-2"></i> Detailed Logs</h5>
-                <span class="badge bg-primary-light" id="logCounter">0 records</span>
+                    <!-- B.Tech CS -->
+                    <div class="stat-card" style="border-color:rgba(139,92,246,0.2);">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+                            <div>
+                                <div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;">Class Section</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.02em;">B.Tech (CS)</div>
+                            </div>
+                            <div style="width:34px;height:34px;border-radius:9px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-cpu" style="color:var(--purple-light);font-size:0.95rem;"></i>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-top:0.875rem;border-top:1px solid var(--border);">
+                            <div style="text-align:center;padding:0.5rem;background:rgba(74,222,128,0.07);border-radius:var(--r-sm);border:1px solid rgba(74,222,128,0.15);">
+                                <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">On-Time</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--green);" id="btechOnTime">0</div>
+                            </div>
+                            <div style="text-align:center;padding:0.5rem;background:rgba(248,113,113,0.07);border-radius:var(--r-sm);border:1px solid rgba(248,113,113,0.15);">
+                                <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">Late</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red);" id="btechLate">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BCA A -->
+                    <div class="stat-card" style="border-color:rgba(34,211,238,0.2);">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+                            <div>
+                                <div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;">Class Section</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.02em;">BCA (A)</div>
+                            </div>
+                            <div style="width:34px;height:34px;border-radius:9px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-laptop" style="color:var(--cyan);font-size:0.95rem;"></i>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-top:0.875rem;border-top:1px solid var(--border);">
+                            <div style="text-align:center;padding:0.5rem;background:rgba(74,222,128,0.07);border-radius:var(--r-sm);border:1px solid rgba(74,222,128,0.15);">
+                                <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">On-Time</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--green);" id="bcaOnTime">0</div>
+                            </div>
+                            <div style="text-align:center;padding:0.5rem;background:rgba(248,113,113,0.07);border-radius:var(--r-sm);border:1px solid rgba(248,113,113,0.15);">
+                                <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">Late</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red);" id="bcaLate">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MCA -->
+                    <div class="stat-card" style="border-color:rgba(244,114,182,0.2);">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+                            <div>
+                                <div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;">Class Section</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.02em;">MCA</div>
+                            </div>
+                            <div style="width:34px;height:34px;border-radius:9px;background:rgba(244,114,182,0.12);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-mortarboard" style="color:var(--pink);font-size:0.95rem;"></i>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-top:0.875rem;border-top:1px solid var(--border);">
+                            <div style="text-align:center;padding:0.5rem;background:rgba(74,222,128,0.07);border-radius:var(--r-sm);border:1px solid rgba(74,222,128,0.15);">
+                                <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">On-Time</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--green);" id="mcaOnTime">0</div>
+                            </div>
+                            <div style="text-align:center;padding:0.5rem;background:rgba(248,113,113,0.07);border-radius:var(--r-sm);border:1px solid rgba(248,113,113,0.15);">
+                                <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">Late</div>
+                                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red);" id="mcaLate">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Daily Attendance -->
+                    <div class="stat-card glow-purple" style="background:linear-gradient(135deg,rgba(139,92,246,0.18),rgba(34,211,238,0.12));border-color:rgba(139,92,246,0.3);">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.5rem;">
+                            <div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);">Total Daily</div>
+                            <div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-people" style="color:white;font-size:0.95rem;"></i>
+                            </div>
+                        </div>
+                        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2.25rem;font-weight:800;color:white;letter-spacing:-0.04em;line-height:1;margin-bottom:0.25rem;" id="systemLoad">0</div>
+                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);margin-bottom:1rem;">Attendance</div>
+                        <div style="margin-top:auto;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:0.4rem;">
+                                <span>Completion</span>
+                                <span id="loadText">0%</span>
+                            </div>
+                            <div style="height:6px;background:rgba(255,255,255,0.15);border-radius:100px;overflow:hidden;">
+                                <div id="loadBar" style="height:100%;width:0%;background:white;border-radius:100px;transition:width 1s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Row -->
+                <div class="chart-row">
+
+                    <!-- Line Chart -->
+                    <div class="card">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:32px;height:32px;border-radius:9px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-graph-up-arrow" style="color:var(--purple-light);font-size:0.9rem;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:0.875rem;color:var(--text-primary);">Attendance Activity</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);">Check-in velocity over time</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-purple">Today</span>
+                        </div>
+                        <div style="height:260px;width:100%;position:relative;">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Doughnut Chart -->
+                    <div class="card">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;">
+                            <div style="width:32px;height:32px;border-radius:9px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-pie-chart" style="color:var(--cyan);font-size:0.9rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;font-size:0.875rem;color:var(--text-primary);">Distribution</div>
+                                <div style="font-size:0.72rem;color:var(--text-muted);">By class section</div>
+                            </div>
+                        </div>
+                        <div style="height:220px;width:100%;display:flex;align-items:center;justify-content:center;position:relative;">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Detailed Logs Table -->
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:9px;background:rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-table" style="color:var(--orange);font-size:0.9rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;font-size:0.875rem;color:var(--text-primary);">Detailed Logs</div>
+                                <div style="font-size:0.72rem;color:var(--text-muted);">Full attendance record</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-purple" id="logCounter">0 records</span>
+                    </div>
+
+                    <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Roll No</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Time</th>
+                                    <th class="pe-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTableBody">
+                                <!-- Filled by reports.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
-            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                <table class="table table-hover mb-0 w-100">
-                    <thead style="position: sticky; top: 0; background: var(--bg-main); z-index: 10;">
-                        <tr>
-                            <th class="ps-4">Roll No</th>
-                            <th>Name</th>
-                            <th>Class</th>
-                            <th>Time</th>
-                            <th class="pe-4">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="attendanceTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/reports.js"></script>
-        </main>
-    </div>
+
+    <script>
+        // Override chart colors after reports.js sets them
+        const _origInit = window.__smaartChartInit;
+
+        // Patch Chart.js colors to dark theme after each chart creation
+        const originalAdd = Chart.prototype.update;
+        document.addEventListener('DOMContentLoaded', () => {
+            // Re-apply dark defaults in case reports.js overwrote them
+            setTimeout(() => {
+                Chart.defaults.color = '#94a3b8';
+                Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+
+                // Re-style the line chart if it exists
+                const lineChart = Chart.getChart('attendanceChart');
+                if (lineChart) {
+                    lineChart.data.datasets[0].borderColor = '#8b5cf6';
+                    lineChart.data.datasets[0].backgroundColor = 'rgba(139,92,246,0.08)';
+                    lineChart.data.datasets[0].pointBackgroundColor = '#a78bfa';
+                    lineChart.data.datasets[0].pointBorderColor = '#8b5cf6';
+                    lineChart.options.scales.y.grid = { color: 'rgba(255,255,255,0.06)' };
+                    lineChart.options.scales.x.grid = { display: false };
+                    lineChart.options.scales.y.ticks = { color: '#475569' };
+                    lineChart.options.scales.x.ticks = { color: '#475569' };
+                    lineChart.update();
+                }
+
+                // Re-style doughnut chart
+                const doughnutChart = Chart.getChart('distributionChart');
+                if (doughnutChart) {
+                    doughnutChart.data.datasets[0].backgroundColor = ['#8b5cf6', '#22d3ee', '#f472b6'];
+                    doughnutChart.data.datasets[0].borderColor = 'rgba(7,7,15,0.8)';
+                    doughnutChart.data.datasets[0].borderWidth = 3;
+                    doughnutChart.options.plugins.legend.labels.color = '#94a3b8';
+                    doughnutChart.update();
+                }
+            }, 600);
+        });
+    </script>
 </body>
 </html>

@@ -3,115 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Smart Attendance System</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Register — SMAART</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-wrapper">
+
         <!-- Sidebar -->
-        <aside class="sidebar shadow-sm">
+        <aside class="sidebar">
             <a class="sidebar-brand" href="index.html">
-                <i class="bi bi-person-bounding-box me-2"></i>
-                Smart Attendance
+                <div class="sidebar-logo-icon">
+                    <i class="bi bi-person-bounding-box"></i>
+                </div>
+                SMAART
             </a>
-            <div class="nav flex-column px-3 py-4 gap-2 flex-grow-1">
-                <a class="nav-link" href="index.html"><i class="bi bi-house me-2"></i> Home</a>
-                <a class="nav-link active" href="register.html"><i class="bi bi-person-plus me-2"></i> Register</a>
-                <a class="nav-link" href="attendance.html"><i class="bi bi-camera me-2"></i> Scanner</a>
-                <a class="nav-link" href="reports.html"><i class="bi bi-graph-up me-2"></i> Dashboard</a>
-            </div>
-            <div class="p-3 mt-auto">
-                <a class="btn btn-primary w-100 shadow-sm" href="attendance.html"><i class="bi bi-lightning-charge me-1"></i> Quick Scan</a>
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+                <a class="nav-link active" href="register.html">
+                    <i class="bi bi-person-plus"></i> Register
+                </a>
+                <a class="nav-link" href="attendance.html">
+                    <i class="bi bi-camera"></i> Scanner
+                </a>
+                <a class="nav-link" href="reports.html">
+                    <i class="bi bi-bar-chart-line"></i> Dashboard
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a class="btn btn-primary w-100" href="attendance.html">
+                    <i class="bi bi-lightning-charge"></i> Quick Scan
+                </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content overflow-auto">
+        <main class="main-content">
 
-    <div class="container py-4">
-        <div class="d-flex align-items-center mb-4">
-            <h2 class="mb-0">Register Student</h2>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-5">
-                <div class="card h-100">
-                    <h5 class="mb-4 pb-3 border-bottom text-muted">
-                        <i class="bi bi-person-lines-fill me-2 text-primary"></i> Student Information
-                    </h5>
-                    <form id="registerForm" class="d-flex flex-column h-100">
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="name" placeholder="E.g. John Doe" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="rollNo" class="form-label">Roll No / ID</label>
-                            <input type="text" class="form-control" id="rollNo" placeholder="E.g. 102345" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="department" class="form-label">Department / Class</label>
-                            <select class="form-select" id="department" required>
-                                <option value="" selected disabled>Select class...</option>
-                                <option value="B.Tech (CS)">B.Tech (CS)</option>
-                                <option value="BCA (A)">BCA (A)</option>
-                                <option value="BBA">BBA</option>
-                                <option value="MCA">MCA</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 mt-auto" id="registerBtn" disabled>
-                            <i class="bi bi-person-plus me-1"></i> <span id="registerBtnText">Complete Registration</span>
-                            <span class="spinner-border spinner-border-sm d-none ms-2" id="registerSpinner" role="status"></span>
-                        </button>
-                    </form>
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <div class="badge badge-purple" style="margin-bottom:0.5rem;">
+                        <i class="bi bi-person-plus"></i> Biometric Enrollment
+                    </div>
+                    <h2 class="page-title">Register Student</h2>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="badge badge-green" id="cameraStatus">
+                        <i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Camera Active
+                    </span>
                 </div>
             </div>
-            
-            <div class="col-lg-7">
-                <div class="card h-100 d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                        <h5 class="mb-0 text-muted"><i class="bi bi-camera me-2 text-primary"></i> Face Capture</h5>
-                        <span class="badge bg-success-light" id="cameraStatus"><i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i> Active</span>
-                    </div>
-                    
-                    <div class="text-center flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative">
-                        <div class="scanner-frame w-100" id="videoWrapper">
-                            <video id="video" autoplay playsinline></video>
-                        </div>
-                        
-                        <div id="capturedPreview" class="position-absolute" style="display:none; top: 40%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
-                            <img id="capturedImg" class="rounded shadow-sm border" width="300" style="background:#fff;">
-                            <div class="mt-2 text-success fw-bold bg-white px-3 py-1 rounded shadow-sm border">
-                                <i class="bi bi-check-circle me-1"></i> Face Captured
+
+            <!-- Content -->
+            <div class="page-content">
+                <div class="content-grid-2">
+
+                    <!-- Left: Form -->
+                    <div class="card" style="height:fit-content;">
+
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
+                            <div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="bi bi-person-lines-fill" style="color:var(--purple-light);font-size:1rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Student Information</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">Fill in all fields to complete enrollment</div>
                             </div>
                         </div>
-                        
-                        <div class="mt-4 w-100">
-                            <button id="captureBtn" class="btn btn-outline w-100 py-2" disabled>
-                                <i class="bi bi-camera me-1"></i> Capture Photo
+
+                        <form id="registerForm" style="display:flex;flex-direction:column;gap:1rem;">
+
+                            <div>
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="e.g. Priya Sharma" required>
+                            </div>
+
+                            <div>
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" placeholder="priya@example.com" required>
+                            </div>
+
+                            <div>
+                                <label for="rollNo" class="form-label">Roll No / Student ID</label>
+                                <input type="text" class="form-control" id="rollNo" placeholder="e.g. CS2024001" required>
+                            </div>
+
+                            <div>
+                                <label for="department" class="form-label">Department / Class</label>
+                                <select class="form-select" id="department" required>
+                                    <option value="" selected disabled>Select class...</option>
+                                    <option value="B.Tech (CS)">B.Tech (CS)</option>
+                                    <option value="BCA (A)">BCA (Section A)</option>
+                                    <option value="BBA">BBA</option>
+                                    <option value="MCA">MCA</option>
+                                </select>
+                            </div>
+
+                            <!-- Progress indicator -->
+                            <div style="background:var(--bg-elevated);border-radius:var(--r-md);padding:0.875rem;border:1px solid var(--border);margin-top:0.25rem;">
+                                <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.5rem;">
+                                    <span>Enrollment Progress</span>
+                                    <span id="progressLabel">Step 1 of 2</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" id="progressBar" style="width:50%;"></div>
+                                </div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Complete form + capture face to enable registration
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-lg" id="registerBtn" disabled style="margin-top:0.25rem;">
+                                <i class="bi bi-person-check"></i>
+                                <span id="registerBtnText">Complete Registration</span>
+                                <span class="spinner-border spinner-border-sm d-none ms-2" id="registerSpinner"></span>
                             </button>
-                        </div>
+
+                        </form>
                     </div>
+
+                    <!-- Right: Camera -->
+                    <div class="card" style="display:flex;flex-direction:column;">
+
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-camera" style="color:var(--cyan);font-size:1rem;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Face Capture</div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">Position face within the frame</div>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;letter-spacing:0.05em;color:var(--cyan);">
+                                <span class="live-dot" style="background:var(--cyan);box-shadow:0 0 8px var(--cyan);width:5px;height:5px;"></span>
+                                LIVE
+                            </div>
+                        </div>
+
+                        <!-- Camera Frame -->
+                        <div style="flex:1;display:flex;flex-direction:column;gap:1rem;">
+                            <!-- Relative wrapper so capturedPreview can overlay the video -->
+                            <div style="position:relative;flex:1;min-height:300px;">
+                                <div class="scanner-frame" id="videoWrapper" style="height:100%;">
+                                    <video id="video" autoplay playsinline></video>
+
+                                    <!-- Scan line (shown/hidden by JS) -->
+                                    <div id="scanLine"></div>
+
+                                    <!-- Corner brackets -->
+                                    <div class="scanner-corners">
+                                        <div class="corner tl"></div>
+                                        <div class="corner tr"></div>
+                                        <div class="corner bl"></div>
+                                        <div class="corner br"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Captured Preview Overlay — sibling of videoWrapper so JS opacity doesn't compound -->
+                                <div id="capturedPreview" style="display:none;position:absolute;inset:0;text-align:center;padding-top:3rem;background:rgba(7,7,15,0.78);backdrop-filter:blur(8px);z-index:10;border-radius:var(--r-lg);">
+                                    <img id="capturedImg" alt="Captured face" style="max-width:220px;border-radius:var(--r-md);border:2px solid var(--green);box-shadow:0 0 28px rgba(74,222,128,0.45);display:block;margin:0 auto 0.75rem;">
+                                    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);border-radius:100px;padding:0.3rem 0.85rem;font-size:0.78rem;font-weight:700;color:var(--green);">
+                                        <i class="bi bi-check-circle-fill"></i> Face Captured
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="captureBtn" class="btn btn-secondary w-100" disabled style="padding:0.75rem;">
+                                <i class="bi bi-camera me-2"></i> Capture Face
+                            </button>
+
+                            <!-- Tip -->
+                            <div style="display:flex;align-items:flex-start;gap:8px;font-size:0.75rem;color:var(--text-muted);padding:0.75rem;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border);">
+                                <i class="bi bi-lightbulb" style="color:var(--yellow);margin-top:1px;flex-shrink:0;"></i>
+                                <span>Ensure good lighting and look directly at the camera for best recognition accuracy.</span>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
-        </div>
+
+        </main>
     </div>
 
-    <!-- Hidden canvas -->
+    <!-- Hidden canvas for capture -->
     <canvas id="canvas" style="display:none;"></canvas>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/shell.js"></script>
     <script src="js/register.js"></script>
-        </main>
-    </div>
+
+    <script>
+        // Progress bar update based on form state
+        const fields = ['name', 'email', 'rollNo', 'department'];
+        function updateProgress() {
+            const filled = fields.filter(id => document.getElementById(id)?.value?.trim()).length;
+            const hasFace = document.getElementById('capturedPreview')?.style.display !== 'none';
+            const total = fields.length + 1;
+            const done = filled + (hasFace ? 1 : 0);
+            const pct = Math.round((done / total) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressLabel').textContent =
+                hasFace ? 'Ready to register!' : `Step ${Math.min(filled+1,2)} of 2`;
+        }
+        fields.forEach(id => {
+            document.getElementById(id)?.addEventListener('input', updateProgress);
+        });
+    </script>
 </body>
 </html>
