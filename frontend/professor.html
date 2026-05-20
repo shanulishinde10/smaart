@@ -24,185 +24,204 @@
     </aside>
 
     <main class="main-content">
+        <div class="dash-container">
 
-        <!-- Dashboard Hero -->
-        <div class="admin-hero-banner" style="margin-bottom:1.25rem;">
-            <div class="admin-hero-glow"></div>
-            <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
-                <div>
-                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple-light);margin-bottom:0.3rem;display:flex;align-items:center;gap:6px;">
-                        <span class="live-dot" style="width:5px;height:5px;"></span>
-                        PROFESSOR PORTAL
-                    </div>
-                    <h2 id="heroWelcome" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:0.35rem;color:#fff;">Welcome back</h2>
-                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">
-                        <span id="heroEmpId" style="font-size:0.78rem;color:rgba(255,255,255,0.5);font-family:monospace;"></span>
-                        <div id="heroCourseBadges" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
-                    </div>
-                    <p id="heroDates" style="color:rgba(255,255,255,0.45);font-size:0.82rem;margin:0;"></p>
-                </div>
-                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <button class="quick-action-btn" style="--qa-color:var(--cyan);" onclick="switchTab('lectures')">
-                        <i class="bi bi-plus-circle"></i> New Lecture
-                    </button>
-                    <button class="quick-action-btn" style="--qa-color:var(--green);" onclick="switchTab('review')">
-                        <i class="bi bi-clipboard-check"></i> Review Attendance
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dashboard Stat Cards -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
-            <div class="stat-card-v2" style="--card-accent:var(--pink);cursor:pointer;" onclick="switchTab('lectures')">
-                <div class="stat-card-v2-icon" style="background:rgba(240,101,64,0.12);">
-                    <i class="bi bi-easel" style="color:var(--pink);"></i>
-                </div>
-                <div class="stat-card-v2-value" id="ds-lectures">—</div>
-                <div class="stat-card-v2-label">Today's Lectures</div>
-                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
-            </div>
-            <div class="stat-card-v2" style="--card-accent:var(--yellow);cursor:pointer;" onclick="switchTab('review')">
-                <div class="stat-card-v2-icon" style="background:rgba(230,119,0,0.12);">
-                    <i class="bi bi-hourglass-split" style="color:var(--yellow);"></i>
-                </div>
-                <div class="stat-card-v2-value" id="ds-pending">—</div>
-                <div class="stat-card-v2-label">Pending Reviews</div>
-                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
-            </div>
-            <div class="stat-card-v2" style="--card-accent:var(--cyan);">
-                <div class="stat-card-v2-icon" style="background:rgba(12,166,120,0.12);">
-                    <i class="bi bi-book" style="color:var(--cyan);"></i>
-                </div>
-                <div class="stat-card-v2-value" id="ds-courses">—</div>
-                <div class="stat-card-v2-label">My Courses</div>
-                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
-            </div>
-            <div class="stat-card-v2" style="--card-accent:var(--purple);">
-                <div class="stat-card-v2-icon" style="background:rgba(61,90,241,0.12);">
-                    <i class="bi bi-mortarboard" style="color:var(--purple-light);"></i>
-                </div>
-                <div class="stat-card-v2-value" id="ds-students">—</div>
-                <div class="stat-card-v2-label">Students Taught</div>
-                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
-            </div>
-        </div>
-
-        <!-- Date filter row -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;gap:0.75rem;flex-wrap:wrap;">
-            <div style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
-                <i class="bi bi-calendar3" style="color:var(--primary);"></i>
-                <span id="lectureDateLabel">Today's Sessions</span>
-            </div>
-            <div style="display:flex;gap:0.5rem;align-items:center;">
-                <input type="date" class="form-control" id="dateFilter" style="width:160px;">
-                <button class="btn btn-primary btn-sm" onclick="loadLectures()"><i class="bi bi-funnel"></i> Filter</button>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tab-nav">
-            <button class="tab-btn active" data-tab="lectures"><i class="bi bi-easel"></i> Lectures</button>
-            <button class="tab-btn" data-tab="review"><i class="bi bi-clipboard-check"></i> Review Attendance</button>
-        </div>
-
-        <!-- ── Lectures Tab ─────────────────────────────────────── -->
-        <div class="tab-pane active" id="tab-lectures">
-            <div style="display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start;">
-
-                <!-- Create Lecture -->
-                <div class="card">
-                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;color:var(--text-primary);">
-                        <i class="bi bi-plus-circle" style="color:var(--cyan);"></i> Create Lecture
-                    </div>
-                    <div id="createError" style="display:none;" class="alert-error"></div>
-                    <form id="createLectureForm" style="display:flex;flex-direction:column;gap:0.875rem;">
-                        <div>
-                            <label class="form-label">Course</label>
-                            <select class="form-select" id="lectureCourse" required>
-                                <option value="" disabled selected>Select your course...</option>
-                            </select>
+            <!-- Hero Banner -->
+            <div class="dash-hero">
+                <div class="dash-orb dash-orb-1"></div>
+                <div class="dash-orb dash-orb-2"></div>
+                <div class="dash-hero-inner">
+                    <div class="dash-hero-left">
+                        <div class="dash-portal-tag">
+                            <span class="live-dot"></span>
+                            PROFESSOR PORTAL
                         </div>
-                        <div>
-                            <label class="form-label">Lecture Title (optional)</label>
-                            <input class="form-control" id="lectureTitle" placeholder="e.g. Unit 3 — Data Structures">
+                        <h1 id="heroWelcome" class="dash-hero-title">Welcome back</h1>
+                        <div class="dash-hero-meta">
+                            <span id="heroEmpId" class="dash-hero-id"></span>
+                            <div id="heroCourseBadges" class="dash-hero-badges"></div>
                         </div>
-                        <div>
-                            <label class="form-label">Date</label>
-                            <input type="date" class="form-control" id="lectureDate" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create Lecture
+                        <p id="heroDates" class="dash-hero-date"></p>
+                    </div>
+                    <div class="dash-hero-actions">
+                        <button class="dash-act-btn" style="--ab:#0ca678;" onclick="switchTab('lectures')">
+                            <i class="bi bi-plus-circle"></i> New Lecture
                         </button>
-                    </form>
-                </div>
-
-                <!-- Lecture List -->
-                <div class="card">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-                        <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
-                            <i class="bi bi-list-ul" style="color:var(--cyan);"></i>
-                            <span id="lectureListTitle">Today's Lectures</span>
-                        </div>
-                        <button class="btn btn-sm btn-outline" onclick="loadLectures()"><i class="bi bi-arrow-clockwise"></i></button>
-                    </div>
-                    <div id="lectureList" style="display:flex;flex-direction:column;gap:0.75rem;">
-                        <div class="skeleton-row"></div>
-                        <div class="skeleton-row"></div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ── Review Attendance Tab ──────────────────────────── -->
-        <div class="tab-pane" id="tab-review">
-
-            <div style="display:grid;grid-template-columns:1fr 1.8fr;gap:1.25rem;align-items:start;">
-
-                <!-- Select lecture -->
-                <div class="card">
-                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;color:var(--text-primary);">
-                        <i class="bi bi-easel" style="color:var(--cyan);"></i> Select Lecture
-                    </div>
-                    <div id="reviewLectureList" style="display:flex;flex-direction:column;gap:0.625rem;">
-                        <div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1rem;">Switch to Lectures tab to load today's sessions</div>
-                    </div>
-                </div>
-
-                <!-- Attendance review panel -->
-                <div class="card">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-                        <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
-                            <i class="bi bi-clipboard-check" style="color:var(--green);"></i>
-                            <span id="reviewTitle">Select a lecture to review</span>
-                        </div>
-                        <div id="pendingBadge" style="display:none;" class="badge badge-yellow"></div>
-                    </div>
-
-                    <div id="attendanceReviewArea">
-                        <div style="text-align:center;padding:3rem;color:var(--text-muted);">
-                            <i class="bi bi-arrow-left-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>
-                            Select a lecture from the left panel to review attendance
-                        </div>
-                    </div>
-
-                    <!-- Bulk actions -->
-                    <div id="bulkActions" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;gap:0.5rem;flex-wrap:wrap;">
-                        <button class="btn btn-sm" style="background:rgba(12,166,120,0.1);border:1px solid rgba(12,166,120,0.3);color:var(--green);"
-                            onclick="bulkApproveAll()">
-                            <i class="bi bi-check-all"></i> Approve All Pending
-                        </button>
-                        <button class="btn btn-sm" style="background:rgba(224,49,49,0.1);border:1px solid rgba(224,49,49,0.3);color:var(--red);"
-                            onclick="bulkRejectAll()">
-                            <i class="bi bi-x-circle"></i> Reject All Pending
+                        <button class="dash-act-btn" style="--ab:#6b83f6;" onclick="switchTab('review')">
+                            <i class="bi bi-clipboard-check"></i> Review Attendance
                         </button>
                     </div>
                 </div>
-
             </div>
-        </div>
 
+            <!-- Stat Cards -->
+            <div class="dash-stats-grid">
+                <div class="dstat" style="--dsc:var(--pink);" onclick="switchTab('lectures')">
+                    <div class="dstat-icon" style="background:rgba(240,101,64,0.15);">
+                        <i class="bi bi-easel" style="color:var(--pink);"></i>
+                    </div>
+                    <div class="dstat-body">
+                        <div class="dstat-val" id="ds-lectures">—</div>
+                        <div class="dstat-lbl">Today's Lectures</div>
+                    </div>
+                    <i class="bi bi-chevron-right dstat-arrow"></i>
+                </div>
+                <div class="dstat" style="--dsc:var(--yellow);" onclick="switchTab('review')">
+                    <div class="dstat-icon" style="background:rgba(230,119,0,0.15);">
+                        <i class="bi bi-hourglass-split" style="color:var(--yellow);"></i>
+                    </div>
+                    <div class="dstat-body">
+                        <div class="dstat-val" id="ds-pending">—</div>
+                        <div class="dstat-lbl">Pending Reviews</div>
+                    </div>
+                    <i class="bi bi-chevron-right dstat-arrow"></i>
+                </div>
+                <div class="dstat" style="--dsc:var(--cyan);">
+                    <div class="dstat-icon" style="background:rgba(12,166,120,0.15);">
+                        <i class="bi bi-book" style="color:var(--cyan);"></i>
+                    </div>
+                    <div class="dstat-body">
+                        <div class="dstat-val" id="ds-courses">—</div>
+                        <div class="dstat-lbl">My Courses</div>
+                    </div>
+                    <i class="bi bi-chevron-right dstat-arrow"></i>
+                </div>
+                <div class="dstat" style="--dsc:var(--purple);">
+                    <div class="dstat-icon" style="background:rgba(61,90,241,0.15);">
+                        <i class="bi bi-mortarboard" style="color:var(--purple-light);"></i>
+                    </div>
+                    <div class="dstat-body">
+                        <div class="dstat-val" id="ds-students">—</div>
+                        <div class="dstat-lbl">Students Taught</div>
+                    </div>
+                    <i class="bi bi-chevron-right dstat-arrow"></i>
+                </div>
+            </div>
+
+            <!-- Date Filter Row -->
+            <div class="dash-filter-row">
+                <div class="dash-filter-label">
+                    <i class="bi bi-calendar3" style="color:var(--primary);"></i>
+                    <span id="lectureDateLabel">Today's Sessions</span>
+                </div>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <input type="date" class="form-control" id="dateFilter" style="width:160px;height:36px;font-size:0.82rem;">
+                    <button class="btn btn-primary btn-sm" onclick="loadLectures()"><i class="bi bi-funnel"></i> Filter</button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="lectures"><i class="bi bi-easel"></i> Lectures</button>
+                <button class="tab-btn" data-tab="review"><i class="bi bi-clipboard-check"></i> Review Attendance</button>
+            </div>
+
+            <!-- Lectures Tab -->
+            <div class="tab-pane active" id="tab-lectures">
+                <div class="dash-two-col" style="grid-template-columns:320px 1fr;">
+
+                    <!-- Create Lecture Card -->
+                    <div class="card">
+                        <div class="card-head">
+                            <div class="card-head-icon" style="background:rgba(12,166,120,0.12);">
+                                <i class="bi bi-plus-circle" style="color:var(--cyan);"></i>
+                            </div>
+                            <span class="card-head-title">Create Lecture</span>
+                        </div>
+                        <div id="createError" class="alert-error" style="display:none;"></div>
+                        <form id="createLectureForm" class="form-stack">
+                            <div>
+                                <label class="form-label">Course</label>
+                                <select class="form-select" id="lectureCourse" required>
+                                    <option value="" disabled selected>Select your course...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Lecture Title <span class="form-label-opt">(optional)</span></label>
+                                <input class="form-control" id="lectureTitle" placeholder="e.g. Unit 3 — Data Structures">
+                            </div>
+                            <div>
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="lectureDate" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                <i class="bi bi-plus-circle"></i> Create Lecture
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Lecture List Card -->
+                    <div class="card">
+                        <div class="card-head">
+                            <div class="card-head-icon" style="background:rgba(12,166,120,0.12);">
+                                <i class="bi bi-list-ul" style="color:var(--cyan);"></i>
+                            </div>
+                            <span class="card-head-title" id="lectureListTitle">Today's Lectures</span>
+                            <button class="icon-btn" style="margin-left:auto;" onclick="loadLectures()">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                        <div id="lectureList" style="display:flex;flex-direction:column;gap:0.625rem;">
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Review Attendance Tab -->
+            <div class="tab-pane" id="tab-review">
+                <div class="dash-two-col">
+
+                    <!-- Select Lecture Panel -->
+                    <div class="card">
+                        <div class="card-head">
+                            <div class="card-head-icon" style="background:rgba(12,166,120,0.12);">
+                                <i class="bi bi-easel" style="color:var(--cyan);"></i>
+                            </div>
+                            <span class="card-head-title">Select Lecture</span>
+                        </div>
+                        <div id="reviewLectureList" style="display:flex;flex-direction:column;gap:0.5rem;">
+                            <div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1.5rem 1rem;">
+                                Switch to Lectures tab to load today's sessions
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Review Panel -->
+                    <div class="card">
+                        <div class="card-head">
+                            <div class="card-head-icon" style="background:rgba(12,166,120,0.1);">
+                                <i class="bi bi-clipboard-check" style="color:var(--green);"></i>
+                            </div>
+                            <span class="card-head-title" id="reviewTitle">Select a lecture to review</span>
+                            <div id="pendingBadge" class="badge badge-yellow" style="display:none;margin-left:auto;"></div>
+                        </div>
+
+                        <div id="attendanceReviewArea">
+                            <div class="empty-state-msg">
+                                <i class="bi bi-arrow-left-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>
+                                Select a lecture from the left panel to review attendance
+                            </div>
+                        </div>
+
+                        <div id="bulkActions" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                                <button class="btn btn-sm" style="background:rgba(12,166,120,0.1);border:1px solid rgba(12,166,120,0.3);color:var(--green);" onclick="bulkApproveAll()">
+                                    <i class="bi bi-check-all"></i> Approve All Pending
+                                </button>
+                                <button class="btn btn-sm" style="background:rgba(224,49,49,0.1);border:1px solid rgba(224,49,49,0.3);color:var(--red);" onclick="bulkRejectAll()">
+                                    <i class="bi bi-x-circle"></i> Reject All Pending
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div><!-- /.dash-container -->
     </main>
 </div>
 
@@ -273,7 +292,6 @@ function switchTab(tabName) {
     document.querySelector('.tab-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ── Tab navigation ─────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -284,7 +302,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// ── Lectures ───────────────────────────────────────────────────────────
 let loadedLectures = [];
 
 async function loadLectures() {
@@ -325,7 +342,6 @@ async function loadLectures() {
     }
 }
 
-// ── Create Lecture ─────────────────────────────────────────────────────
 document.getElementById('createLectureForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('createError');
@@ -350,7 +366,6 @@ document.getElementById('createLectureForm').addEventListener('submit', async (e
     }
 });
 
-// ── Review Attendance ──────────────────────────────────────────────────
 function syncReviewList() {
     const list = document.getElementById('reviewLectureList');
     if (!loadedLectures.length) {
@@ -397,7 +412,7 @@ function renderReviewTable(records) {
     if (pendingCount > 0) {
         pendingBadge.style.display = 'inline-flex';
         pendingBadge.textContent = `${pendingCount} pending`;
-        document.getElementById('bulkActions').style.display = 'flex';
+        document.getElementById('bulkActions').style.display = 'block';
     } else {
         pendingBadge.style.display = 'none';
         document.getElementById('bulkActions').style.display = 'none';
@@ -491,13 +506,276 @@ init();
 </script>
 
 <style>
-.btn-outline {
-    background:transparent;border:1px solid var(--border);color:var(--text-secondary);
-    padding:0.5rem 0.875rem;border-radius:var(--r-md);font-size:0.875rem;cursor:pointer;
-    transition:border-color var(--t-base),color var(--t-base);display:inline-flex;
-    align-items:center;gap:0.4rem;
+/* ── Dashboard Shell ──────────────────────────────────────── */
+.dash-container {
+    padding: 1.75rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
 }
-.btn-outline:hover { border-color:var(--cyan);color:var(--cyan); }
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.dash-hero {
+    position: relative;
+    background: linear-gradient(135deg, #1a2744 0%, #2942c5 65%, #1a3060 100%);
+    border-radius: var(--r-xl);
+    padding: 2rem 2.25rem;
+    overflow: hidden;
+    border: 1px solid rgba(107,131,246,0.25);
+    box-shadow: 0 8px 40px rgba(26,39,68,0.28);
+}
+.dash-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.dash-orb-1 {
+    width: 340px; height: 340px;
+    top: -130px; right: -70px;
+    background: radial-gradient(circle, rgba(61,90,241,0.4) 0%, transparent 70%);
+}
+.dash-orb-2 {
+    width: 220px; height: 220px;
+    bottom: -90px; left: 35%;
+    background: radial-gradient(circle, rgba(12,166,120,0.22) 0%, transparent 70%);
+}
+.dash-hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+.dash-portal-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(107,131,246,0.95);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.dash-hero-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+}
+.dash-hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+}
+.dash-hero-id {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.42);
+    font-family: monospace;
+}
+.dash-hero-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.dash-hero-date { font-size: 0.8rem; color: rgba(255,255,255,0.38); margin: 0; }
+.dash-hero-actions { display: flex; gap: 0.625rem; flex-wrap: wrap; }
+.dash-act-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--r-md);
+    border: 1px solid var(--ab, #6b83f6);
+    color: var(--ab, #6b83f6);
+    background: color-mix(in srgb, var(--ab, #6b83f6) 12%, transparent);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+    white-space: nowrap;
+}
+.dash-act-btn:hover {
+    background: color-mix(in srgb, var(--ab, #6b83f6) 22%, transparent);
+    transform: translateY(-1px);
+}
+
+/* ── Stat Cards ───────────────────────────────────────────── */
+.dash-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+@media (max-width:900px) { .dash-stats-grid { grid-template-columns: repeat(2,1fr); } }
+
+.dstat {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.25rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: var(--shadow-sm);
+}
+.dstat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--dsc, var(--purple));
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.dstat:hover {
+    transform: translateY(-3px);
+    border-color: var(--dsc, var(--purple));
+    box-shadow: 0 8px 28px rgba(26,31,54,0.13);
+}
+.dstat-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+.dstat-body { flex: 1; min-width: 0; }
+.dstat-val {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+.dstat-lbl {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+}
+.dstat-arrow {
+    color: var(--dsc, var(--purple));
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+.dstat:hover .dstat-arrow { opacity: 1; }
+
+/* ── Filter Row ───────────────────────────────────────────── */
+.dash-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.dash-filter-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── Two-column Layout ────────────────────────────────────── */
+.dash-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1.8fr;
+    gap: 1.25rem;
+    align-items: start;
+}
+@media (max-width:900px) { .dash-two-col { grid-template-columns: 1fr; } }
+
+/* ── Card Heading ─────────────────────────────────────────── */
+.card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.25rem;
+}
+.card-head-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+.card-head-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+/* ── Form Stack ───────────────────────────────────────────── */
+.form-stack { display: flex; flex-direction: column; gap: 0.875rem; }
+.form-label-opt {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+/* ── Icon Button ──────────────────────────────────────────── */
+.icon-btn {
+    width: 32px; height: 32px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--t-base);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+.icon-btn:hover {
+    background: var(--bg-elevated);
+    color: var(--primary);
+    border-color: var(--border-focus);
+}
+
+/* ── Btn Outline ──────────────────────────────────────────── */
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--r-md);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color var(--t-base), color var(--t-base);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ── Empty State ──────────────────────────────────────────── */
+.empty-state-msg {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
 </style>
 </body>
 </html>
