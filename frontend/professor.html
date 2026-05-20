@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Panel — SMAART</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="index.html">
+            <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
+            SMAART
+        </a>
+        <nav class="sidebar-nav"></nav>
+        <div class="sidebar-footer">
+            <a class="btn btn-primary w-100" href="attendance.html">
+                <i class="bi bi-lightning-charge"></i> Quick Scan
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <div class="badge badge-cyan" style="margin-bottom:0.5rem;">
+                    <i class="bi bi-easel"></i> Professor Portal
+                </div>
+                <h2 class="page-title">My Lectures</h2>
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+                <input type="date" class="form-control" id="dateFilter" style="width:160px;">
+                <button class="btn btn-primary btn-sm" onclick="loadLectures()"><i class="bi bi-funnel"></i> Filter</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="lectures"><i class="bi bi-easel"></i> Lectures</button>
+            <button class="tab-btn" data-tab="review"><i class="bi bi-clipboard-check"></i> Review Attendance</button>
+        </div>
+
+        <!-- ── Lectures Tab ─────────────────────────────────────── -->
+        <div class="tab-pane active" id="tab-lectures">
+            <div style="display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start;">
+
+                <!-- Create Lecture -->
+                <div class="card">
+                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;color:var(--text-primary);">
+                        <i class="bi bi-plus-circle" style="color:var(--cyan);"></i> Create Lecture
+                    </div>
+                    <div id="createError" style="display:none;" class="alert-error"></div>
+                    <form id="createLectureForm" style="display:flex;flex-direction:column;gap:0.875rem;">
+                        <div>
+                            <label class="form-label">Course</label>
+                            <select class="form-select" id="lectureCourse" required>
+                                <option value="" disabled selected>Select your course...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Lecture Title (optional)</label>
+                            <input class="form-control" id="lectureTitle" placeholder="e.g. Unit 3 — Data Structures">
+                        </div>
+                        <div>
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" id="lectureDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create Lecture
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lecture List -->
+                <div class="card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                        <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                            <i class="bi bi-list-ul" style="color:var(--cyan);"></i>
+                            <span id="lectureListTitle">Today's Lectures</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline" onclick="loadLectures()"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
+                    <div id="lectureList" style="display:flex;flex-direction:column;gap:0.75rem;">
+                        <div class="skeleton-row"></div>
+                        <div class="skeleton-row"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── Review Attendance Tab ──────────────────────────── -->
+        <div class="tab-pane" id="tab-review">
+
+            <div style="display:grid;grid-template-columns:1fr 1.8fr;gap:1.25rem;align-items:start;">
+
+                <!-- Select lecture -->
+                <div class="card">
+                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;color:var(--text-primary);">
+                        <i class="bi bi-easel" style="color:var(--cyan);"></i> Select Lecture
+                    </div>
+                    <div id="reviewLectureList" style="display:flex;flex-direction:column;gap:0.625rem;">
+                        <div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1rem;">Switch to Lectures tab to load today's sessions</div>
+                    </div>
+                </div>
+
+                <!-- Attendance review panel -->
+                <div class="card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                        <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                            <i class="bi bi-clipboard-check" style="color:var(--green);"></i>
+                            <span id="reviewTitle">Select a lecture to review</span>
+                        </div>
+                        <div id="pendingBadge" style="display:none;" class="badge badge-yellow"></div>
+                    </div>
+
+                    <div id="attendanceReviewArea">
+                        <div style="text-align:center;padding:3rem;color:var(--text-muted);">
+                            <i class="bi bi-arrow-left-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>
+                            Select a lecture from the left panel to review attendance
+                        </div>
+                    </div>
+
+                    <!-- Bulk actions -->
+                    <div id="bulkActions" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;gap:0.5rem;flex-wrap:wrap;">
+                        <button class="btn btn-sm" style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green);"
+                            onclick="bulkApproveAll()">
+                            <i class="bi bi-check-all"></i> Approve All Pending
+                        </button>
+                        <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);"
+                            onclick="bulkRejectAll()">
+                            <i class="bi bi-x-circle"></i> Reject All Pending
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/toast.js"></script>
+
+<script>
+Auth.requireRole(['professor']);
+Auth.renderSidebar();
+
+const user = Auth.getUser();
+const profile = Auth.getProfile(); // professor profile
+
+let currentLectureId = null;
+let currentAttendanceRecords = [];
+
+// Set today's date as default
+const todayStr = new Date().toISOString().split('T')[0];
+document.getElementById('dateFilter').value = todayStr;
+document.getElementById('lectureDate').value = todayStr;
+
+async function init() {
+    // Populate course dropdown with professor's assigned courses
+    if (profile && profile.courses) {
+        const sel = document.getElementById('lectureCourse');
+        sel.innerHTML = '<option value="" disabled selected>Select your course...</option>';
+        profile.courses.forEach(c => {
+            sel.innerHTML += `<option value="${c.id}">${c.name} (${c.code})</option>`;
+        });
+    }
+    loadLectures();
+}
+
+// ── Tab navigation ─────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'review') syncReviewList();
+    });
+});
+
+// ── Lectures ───────────────────────────────────────────────────────────
+let loadedLectures = [];
+
+async function loadLectures() {
+    const list = document.getElementById('lectureList');
+    const dateVal = document.getElementById('dateFilter').value || todayStr;
+    document.getElementById('lectureListTitle').textContent =
+        dateVal === todayStr ? "Today's Lectures" : `Lectures — ${dateVal}`;
+
+    list.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div>';
+    try {
+        const { lectures } = await API.professor.getLectures(dateVal);
+        loadedLectures = lectures;
+        if (!lectures.length) {
+            list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;">No lectures for this date.<br>Create one using the form.</div>';
+            return;
+        }
+        list.innerHTML = lectures.map(l => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border);">
+                <div>
+                    <div style="font-weight:700;font-size:0.88rem;color:var(--text-primary);">${l.title}</div>
+                    <div style="display:flex;gap:6px;margin-top:4px;">
+                        <span class="badge badge-cyan" style="font-size:0.65rem;">${l.course?.code || ''}</span>
+                        <span style="font-size:0.72rem;color:var(--text-muted);">${l.date}</span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="openReview(${l.id}, '${l.title}')">
+                    <i class="bi bi-clipboard-check"></i> Review
+                </button>
+            </div>
+        `).join('');
+    } catch (err) {
+        list.innerHTML = `<div style="color:var(--red);font-size:0.82rem;text-align:center;padding:1rem;">${err.message}</div>`;
+    }
+}
+
+// ── Create Lecture ─────────────────────────────────────────────────────
+document.getElementById('createLectureForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('createError');
+    errEl.style.display = 'none';
+
+    const data = {
+        course_id: parseInt(document.getElementById('lectureCourse').value),
+        title: document.getElementById('lectureTitle').value.trim(),
+        date: document.getElementById('lectureDate').value,
+    };
+
+    try {
+        await API.professor.createLecture(data);
+        Toast.success('Lecture created');
+        e.target.reset();
+        document.getElementById('lectureDate').value = todayStr;
+        loadLectures();
+    } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+    }
+});
+
+// ── Review Attendance ──────────────────────────────────────────────────
+function syncReviewList() {
+    const list = document.getElementById('reviewLectureList');
+    if (!loadedLectures.length) {
+        list.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1rem;">No lectures loaded. Use the Lectures tab first.</div>';
+        return;
+    }
+    list.innerHTML = loadedLectures.map(l => `
+        <button class="btn btn-sm w-100" style="justify-content:flex-start;text-align:left;background:${currentLectureId === l.id ? 'rgba(12,166,120,0.1)' : 'var(--bg-elevated)'};border:1px solid ${currentLectureId === l.id ? 'var(--cyan)' : 'var(--border)'};color:var(--text-primary);padding:0.75rem;border-radius:var(--r-md);margin-bottom:0;"
+            onclick="openReview(${l.id}, '${l.title}')">
+            <i class="bi bi-easel" style="color:var(--cyan);margin-right:6px;"></i>
+            <div>
+                <div style="font-size:0.82rem;font-weight:700;">${l.title}</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);">${l.course?.code || ''} · ${l.date}</div>
+            </div>
+        </button>
+    `).join('');
+}
+
+async function openReview(lectureId, title) {
+    currentLectureId = lectureId;
+    document.getElementById('reviewTitle').textContent = title;
+
+    // Switch to review tab
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-tab="review"]').classList.add('active');
+    document.getElementById('tab-review').classList.add('active');
+    syncReviewList();
+
+    const area = document.getElementById('attendanceReviewArea');
+    area.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;"><i class="bi bi-hourglass-split" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading...</div>';
+    document.getElementById('bulkActions').style.display = 'none';
+
+    try {
+        const { records } = await API.professor.getLectureAttendance(lectureId);
+        currentAttendanceRecords = records;
+        renderReviewTable(records);
+    } catch (err) {
+        area.innerHTML = `<div style="color:var(--red);text-align:center;padding:2rem;">${err.message}</div>`;
+    }
+}
+
+function renderReviewTable(records) {
+    const area = document.getElementById('attendanceReviewArea');
+    const pendingBadge = document.getElementById('pendingBadge');
+    const pendingCount = records.filter(r => r.status === 'pending').length;
+
+    if (pendingCount > 0) {
+        pendingBadge.style.display = 'inline-flex';
+        pendingBadge.textContent = `${pendingCount} pending`;
+        document.getElementById('bulkActions').style.display = 'flex';
+    } else {
+        pendingBadge.style.display = 'none';
+        document.getElementById('bulkActions').style.display = 'none';
+    }
+
+    if (!records.length) {
+        area.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:3rem;font-size:0.85rem;">No students have scanned for this lecture yet.</div>';
+        return;
+    }
+
+    area.innerHTML = `
+        <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Roll No</th>
+                    <th>Scan Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${records.map(r => `
+                    <tr id="row-${r.id}">
+                        <td><strong style="color:var(--text-primary);">${r.student_name || '—'}</strong></td>
+                        <td><span class="badge badge-purple" style="font-size:0.7rem;">${r.student_roll_no || '—'}</span></td>
+                        <td style="color:var(--text-muted);font-size:0.78rem;">${r.scan_time ? new Date(r.scan_time).toLocaleTimeString() : '—'}</td>
+                        <td><span class="status-badge status-${r.status}" id="status-${r.id}">${r.status}</span></td>
+                        <td>
+                            ${r.status === 'pending' ? `
+                                <div style="display:flex;gap:4px;">
+                                    <button class="btn btn-sm" style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green);"
+                                        onclick="reviewOne(${r.id}, 'present')">
+                                        <i class="bi bi-check-lg"></i> Present
+                                    </button>
+                                    <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);"
+                                        onclick="reviewOne(${r.id}, 'absent')">
+                                        <i class="bi bi-x-lg"></i> Absent
+                                    </button>
+                                </div>
+                            ` : `<span style="font-size:0.78rem;color:var(--text-muted);">Reviewed</span>`}
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        </div>
+    `;
+}
+
+async function reviewOne(recordId, status) {
+    try {
+        await API.professor.reviewAttendance(recordId, status);
+        Toast.success(`Marked ${status}`);
+        // Reload
+        const { records } = await API.professor.getLectureAttendance(currentLectureId);
+        currentAttendanceRecords = records;
+        renderReviewTable(records);
+    } catch (err) { Toast.error(err.message); }
+}
+
+async function bulkApproveAll() {
+    const pending = currentAttendanceRecords.filter(r => r.status === 'pending');
+    if (!pending.length) { Toast.info('No pending records'); return; }
+    try {
+        await Promise.all(pending.map(r => API.professor.reviewAttendance(r.id, 'present')));
+        Toast.success(`${pending.length} students marked present`);
+        const { records } = await API.professor.getLectureAttendance(currentLectureId);
+        currentAttendanceRecords = records;
+        renderReviewTable(records);
+    } catch (err) { Toast.error(err.message); }
+}
+
+async function bulkRejectAll() {
+    const pending = currentAttendanceRecords.filter(r => r.status === 'pending');
+    if (!pending.length) { Toast.info('No pending records'); return; }
+    if (!confirm(`Mark ${pending.length} students as absent?`)) return;
+    try {
+        await Promise.all(pending.map(r => API.professor.reviewAttendance(r.id, 'absent')));
+        Toast.success(`${pending.length} students marked absent`);
+        const { records } = await API.professor.getLectureAttendance(currentLectureId);
+        currentAttendanceRecords = records;
+        renderReviewTable(records);
+    } catch (err) { Toast.error(err.message); }
+}
+
+init();
+</script>
+</body>
+</html>

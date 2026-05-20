@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — SMAART Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="admin.html">
+            <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
+            SMAART
+        </a>
+        <nav class="sidebar-nav"></nav>
+        <div class="sidebar-footer">
+            <a class="btn btn-primary w-100" href="attendance.html">
+                <i class="bi bi-lightning-charge"></i> Quick Scan
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Welcome Banner -->
+        <div class="admin-hero-banner">
+            <div class="admin-hero-glow"></div>
+            <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple-light);margin-bottom:0.3rem;display:flex;align-items:center;gap:6px;">
+                        <span class="live-dot" style="width:5px;height:5px;"></span>
+                        ADMIN CONTROL CENTER
+                    </div>
+                    <h2 id="welcomeMsg" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:0.25rem;">Welcome back, Admin</h2>
+                    <p id="dateDisplay" style="color:var(--text-muted);font-size:0.85rem;"></p>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    <a href="admin-professors.html" class="quick-action-btn" style="--qa-color:var(--cyan);">
+                        <i class="bi bi-person-plus"></i> Add Professor
+                    </a>
+                    <a href="admin-attendance.html" class="quick-action-btn" style="--qa-color:var(--green);">
+                        <i class="bi bi-clipboard-check"></i> Review Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6-card stats grid -->
+        <div class="stats-grid-6" style="margin-bottom:1.5rem;">
+
+            <div class="stat-card-v2" style="--card-accent:var(--purple);" onclick="location.href='admin-students.html'">
+                <div class="stat-card-v2-icon" style="background:rgba(61,90,241,0.12);">
+                    <i class="bi bi-mortarboard" style="color:var(--purple-light);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="s-students">—</div>
+                <div class="stat-card-v2-label">Total Students</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
+            </div>
+
+            <div class="stat-card-v2" style="--card-accent:var(--cyan);" onclick="location.href='admin-professors.html'">
+                <div class="stat-card-v2-icon" style="background:rgba(12,166,120,0.12);">
+                    <i class="bi bi-person-video2" style="color:var(--cyan);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="s-professors">—</div>
+                <div class="stat-card-v2-label">Professors</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
+            </div>
+
+            <div class="stat-card-v2" style="--card-accent:var(--orange);" onclick="location.href='admin-lectures.html'">
+                <div class="stat-card-v2-icon" style="background:rgba(245,159,0,0.12);">
+                    <i class="bi bi-book" style="color:var(--orange);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="s-courses">—</div>
+                <div class="stat-card-v2-label">Courses</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
+            </div>
+
+            <div class="stat-card-v2" style="--card-accent:var(--pink);" onclick="location.href='admin-lectures.html'">
+                <div class="stat-card-v2-icon" style="background:rgba(240,101,64,0.12);">
+                    <i class="bi bi-easel" style="color:var(--pink);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="s-lectures">—</div>
+                <div class="stat-card-v2-label">Lectures Today</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
+            </div>
+
+            <div class="stat-card-v2" style="--card-accent:var(--green);" onclick="location.href='admin-attendance.html'">
+                <div class="stat-card-v2-icon" style="background:rgba(12,166,120,0.12);">
+                    <i class="bi bi-check-circle" style="color:var(--green);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="s-present">—</div>
+                <div class="stat-card-v2-label">Present Today</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
+            </div>
+
+            <div class="stat-card-v2" style="--card-accent:var(--yellow);" onclick="location.href='admin-attendance.html'">
+                <div class="stat-card-v2-icon" style="background:rgba(230,119,0,0.12);">
+                    <i class="bi bi-hourglass-split" style="color:var(--yellow);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="s-pending">—</div>
+                <div class="stat-card-v2-label">Pending Review</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
+            </div>
+
+        </div>
+
+        <!-- Middle: Chart + Quick Links -->
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:1.25rem;margin-bottom:1.25rem;">
+
+            <!-- Attendance Trend Chart -->
+            <div class="card chart-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                    <div>
+                        <div style="font-weight:800;font-size:0.95rem;color:var(--text-primary);">Attendance Trends</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);">Last 7 days · Present / Absent / Pending</div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;font-size:0.72rem;font-weight:600;">
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block;"></span>Present</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block;"></span>Absent</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--yellow);display:inline-block;"></span>Pending</span>
+                    </div>
+                </div>
+                <div style="position:relative;height:220px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Quick Module Links -->
+            <div class="card" style="display:flex;flex-direction:column;gap:0.625rem;">
+                <div style="font-weight:800;font-size:0.95rem;color:var(--text-primary);margin-bottom:0.5rem;">Modules</div>
+
+                <a href="admin-professors.html" class="module-link" style="--ml-color:var(--cyan);">
+                    <div class="module-link-icon"><i class="bi bi-person-video2"></i></div>
+                    <div class="module-link-text">
+                        <div class="module-link-title">Professors</div>
+                        <div class="module-link-sub">Add, assign courses, remove</div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.75rem;margin-left:auto;"></i>
+                </a>
+
+                <a href="admin-students.html" class="module-link" style="--ml-color:var(--purple-light);">
+                    <div class="module-link-icon"><i class="bi bi-mortarboard"></i></div>
+                    <div class="module-link-text">
+                        <div class="module-link-title">Students</div>
+                        <div class="module-link-sub">View, manage enrollments</div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.75rem;margin-left:auto;"></i>
+                </a>
+
+                <a href="admin-attendance.html" class="module-link" style="--ml-color:var(--green);">
+                    <div class="module-link-icon"><i class="bi bi-calendar-check"></i></div>
+                    <div class="module-link-text">
+                        <div class="module-link-title">Attendance</div>
+                        <div class="module-link-sub">Mark, edit, remove records</div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.75rem;margin-left:auto;"></i>
+                </a>
+
+                <a href="admin-lectures.html" class="module-link" style="--ml-color:var(--pink);">
+                    <div class="module-link-icon"><i class="bi bi-easel"></i></div>
+                    <div class="module-link-text">
+                        <div class="module-link-title">Lectures</div>
+                        <div class="module-link-sub">View all lecture sessions</div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.75rem;margin-left:auto;"></i>
+                </a>
+
+                <a href="attendance.html" class="module-link" style="--ml-color:var(--orange);">
+                    <div class="module-link-icon"><i class="bi bi-camera"></i></div>
+                    <div class="module-link-text">
+                        <div class="module-link-title">Scanner</div>
+                        <div class="module-link-sub">Open face scanner</div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.75rem;margin-left:auto;"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Recent Activity Feed -->
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                <div>
+                    <div style="font-weight:800;font-size:0.95rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                        <span class="live-dot" style="width:6px;height:6px;"></span>
+                        Recent Attendance Activity
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);">Latest records across all lectures</div>
+                </div>
+                <a href="admin-attendance.html" style="font-size:0.78rem;color:var(--purple-light);text-decoration:none;font-weight:600;display:flex;align-items:center;gap:4px;">
+                    View all <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div id="activityFeed" style="display:flex;flex-direction:column;gap:0.5rem;">
+                <div class="skeleton-row" style="height:48px;"></div>
+                <div class="skeleton-row" style="height:48px;"></div>
+                <div class="skeleton-row" style="height:48px;"></div>
+                <div class="skeleton-row" style="height:48px;"></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/toast.js"></script>
+
+<script>
+Auth.requireRole(['admin']);
+Auth.renderSidebar();
+
+// Welcome
+const user = Auth.getUser();
+if (user) {
+    document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.username.charAt(0).toUpperCase() + user.username.slice(1)}`;
+}
+const now = new Date();
+document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+});
+
+// Animated counter
+function animateCount(el, target) {
+    let start = 0;
+    const step = Math.ceil(target / 30);
+    const interval = setInterval(() => {
+        start = Math.min(start + step, target);
+        el.textContent = start;
+        if (start >= target) clearInterval(interval);
+    }, 35);
+}
+
+async function loadStats() {
+    try {
+        const s = await API.admin.getStats();
+        animateCount(document.getElementById('s-students'), s.total_students);
+        animateCount(document.getElementById('s-professors'), s.total_professors);
+        animateCount(document.getElementById('s-courses'), s.total_courses);
+        animateCount(document.getElementById('s-lectures'), s.lectures_today);
+        animateCount(document.getElementById('s-present'), s.present_today);
+        animateCount(document.getElementById('s-pending'), s.pending_attendance);
+    } catch {}
+}
+
+async function loadTrendChart() {
+    try {
+        const { trends } = await API.admin.getTrends(7);
+        const labels = trends.map(t => {
+            const d = new Date(t.date + 'T00:00:00');
+            return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        });
+
+        const ctx = document.getElementById('trendChart').getContext('2d');
+
+        const mkGrad = (ctx, color) => {
+            const g = ctx.createLinearGradient(0, 0, 0, 220);
+            g.addColorStop(0, color + '55');
+            g.addColorStop(1, color + '00');
+            return g;
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Present',
+                        data: trends.map(t => t.present),
+                        borderColor: '#0ca678',
+                        backgroundColor: mkGrad(ctx, '#0ca678'),
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.45,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#0ca678',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                    },
+                    {
+                        label: 'Absent',
+                        data: trends.map(t => t.absent),
+                        borderColor: '#e03131',
+                        backgroundColor: mkGrad(ctx, '#e03131'),
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.45,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#e03131',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                    },
+                    {
+                        label: 'Pending',
+                        data: trends.map(t => t.pending),
+                        borderColor: '#e67700',
+                        backgroundColor: mkGrad(ctx, '#e67700'),
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.45,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#e67700',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        borderDash: [4, 3],
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(255,255,255,0.97)',
+                        borderColor: 'rgba(26,31,54,0.12)',
+                        borderWidth: 1,
+                        titleColor: '#1a1f36',
+                        bodyColor: '#4a5568',
+                        padding: 12,
+                        cornerRadius: 10,
+                    },
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(26,31,54,0.06)' },
+                        ticks: { color: '#8896a5', font: { size: 11 } },
+                        border: { color: 'transparent' },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(26,31,54,0.06)' },
+                        ticks: { color: '#8896a5', font: { size: 11 }, stepSize: 1 },
+                        border: { color: 'transparent' },
+                    },
+                },
+            },
+        });
+    } catch {}
+}
+
+async function loadActivity() {
+    const feed = document.getElementById('activityFeed');
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const { records } = await API.admin.getAttendance({ date: today });
+
+        if (!records.length) {
+            feed.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;">No activity today yet</div>';
+            return;
+        }
+
+        const statusIcon = { present: 'bi-check-circle-fill', absent: 'bi-x-circle-fill', pending: 'bi-hourglass-split' };
+        const statusColor = { present: 'var(--green)', absent: 'var(--red)', pending: 'var(--yellow)' };
+
+        feed.innerHTML = records.slice(0, 8).map(r => `
+            <div style="display:flex;align-items:center;gap:12px;padding:0.7rem 0.875rem;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border);transition:border-color 0.15s;"
+                onmouseover="this.style.borderColor='rgba(61,90,241,0.25)'"
+                onmouseout="this.style.borderColor='var(--border)'">
+                <div style="width:36px;height:36px;border-radius:50%;background:${statusColor[r.status]}18;border:1.5px solid ${statusColor[r.status]}44;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi ${statusIcon[r.status] || 'bi-clock'}" style="color:${statusColor[r.status]};font-size:0.85rem;"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;font-size:0.85rem;color:var(--text-primary);">${r.student_name || 'Unknown'}</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);">${r.lecture?.title || 'Lecture'} · ${r.lecture?.course?.code || ''}</div>
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                    <span class="status-badge status-${r.status}">${r.status}</span>
+                    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:3px;">${r.scan_time ? new Date(r.scan_time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—'}</div>
+                </div>
+            </div>
+        `).join('');
+    } catch {
+        feed.innerHTML = '<div style="text-align:center;color:var(--red);padding:2rem;font-size:0.82rem;">Failed to load activity</div>';
+    }
+}
+
+loadStats();
+loadTrendChart();
+loadActivity();
+</script>
+
+<style>
+/* ── Admin Hero Banner ──────────────────────────────────── */
+.admin-hero-banner {
+    position: relative;
+    padding: 1.5rem 2rem;
+    border-radius: var(--r-xl);
+    border: 1px solid rgba(61,90,241,0.18);
+    background: linear-gradient(135deg, rgba(61,90,241,0.06) 0%, rgba(12,166,120,0.03) 100%);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+.admin-hero-glow {
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(61,90,241,0.12), transparent 70%);
+    pointer-events: none;
+}
+
+/* ── 6-card grid ────────────────────────────────────────── */
+.stats-grid-6 {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.875rem;
+}
+@media (max-width: 1200px) { .stats-grid-6 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .stats-grid-6 { grid-template-columns: repeat(2, 1fr); } }
+
+.stat-card-v2 {
+    position: relative;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.1rem 1rem;
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    overflow: hidden;
+}
+.stat-card-v2::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--purple));
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.stat-card-v2:hover {
+    transform: translateY(-3px);
+    border-color: var(--card-accent, var(--purple));
+    box-shadow: 0 8px 32px rgba(26,31,54,0.14);
+}
+.stat-card-v2-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+.stat-card-v2-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+.stat-card-v2-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.stat-card-v2-link {
+    position: absolute;
+    bottom: 0.75rem; right: 0.875rem;
+    color: var(--card-accent, var(--purple));
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 0.9rem;
+}
+.stat-card-v2:hover .stat-card-v2-link { opacity: 1; }
+
+/* ── Chart card ─────────────────────────────────────────── */
+.chart-card {
+    background: var(--bg-surface);
+}
+
+/* ── Quick Action Buttons (banner) ─────────────────────── */
+.quick-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 1rem;
+    border-radius: var(--r-md);
+    border: 1px solid var(--qa-color, var(--purple));
+    color: var(--qa-color, var(--purple-light));
+    background: color-mix(in srgb, var(--qa-color, var(--purple)) 10%, transparent);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+}
+.quick-action-btn:hover {
+    background: color-mix(in srgb, var(--qa-color, var(--purple)) 20%, transparent);
+    transform: translateY(-2px);
+}
+
+/* ── Module Links ───────────────────────────────────────── */
+.module-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.module-link:hover {
+    border-color: var(--ml-color, var(--purple));
+    background: color-mix(in srgb, var(--ml-color, var(--purple)) 8%, var(--bg-elevated));
+    transform: translateX(3px);
+}
+.module-link-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--ml-color, var(--purple)) 15%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--ml-color, var(--purple));
+    font-size: 0.95rem;
+}
+.module-link-title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+.module-link-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+</style>
+</body>
+</html>

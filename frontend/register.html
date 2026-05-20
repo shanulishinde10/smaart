@@ -19,18 +19,10 @@
                 SMAART
             </a>
             <nav class="sidebar-nav">
-                <a class="nav-link" href="index.html">
-                    <i class="bi bi-house-door"></i> Home
-                </a>
-                <a class="nav-link active" href="register.html">
-                    <i class="bi bi-person-plus"></i> Register
-                </a>
-                <a class="nav-link" href="attendance.html">
-                    <i class="bi bi-camera"></i> Scanner
-                </a>
-                <a class="nav-link" href="reports.html">
-                    <i class="bi bi-bar-chart-line"></i> Dashboard
-                </a>
+                <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                <a class="nav-link active" href="register.html"><i class="bi bi-person-plus"></i> Register</a>
+                <a class="nav-link" href="attendance.html"><i class="bi bi-camera"></i> Scanner</a>
+                <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
             </nav>
             <div class="sidebar-footer">
                 <a class="btn btn-primary w-100" href="attendance.html">
@@ -46,7 +38,7 @@
             <div class="page-header">
                 <div>
                     <div class="badge badge-purple" style="margin-bottom:0.5rem;">
-                        <i class="bi bi-person-plus"></i> Biometric Enrollment
+                        <i class="bi bi-person-plus"></i> Student Enrollment
                     </div>
                     <h2 class="page-title">Register Student</h2>
                 </div>
@@ -65,54 +57,61 @@
                     <div class="card" style="height:fit-content;">
 
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
-                            <div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <div style="width:36px;height:36px;border-radius:10px;background:rgba(61,90,241,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                 <i class="bi bi-person-lines-fill" style="color:var(--purple-light);font-size:1rem;"></i>
                             </div>
                             <div>
                                 <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Student Information</div>
-                                <div style="font-size:0.75rem;color:var(--text-muted);">Fill in all fields to complete enrollment</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">Fill all fields + capture face to enroll</div>
                             </div>
                         </div>
 
                         <form id="registerForm" style="display:flex;flex-direction:column;gap:1rem;">
 
                             <div>
-                                <label for="name" class="form-label">Full Name</label>
+                                <label class="form-label">Full Name</label>
                                 <input type="text" class="form-control" id="name" placeholder="e.g. Priya Sharma" required>
                             </div>
 
                             <div>
-                                <label for="email" class="form-label">Email Address</label>
+                                <label class="form-label">Email Address</label>
                                 <input type="email" class="form-control" id="email" placeholder="priya@example.com" required>
                             </div>
 
                             <div>
-                                <label for="rollNo" class="form-label">Roll No / Student ID</label>
+                                <label class="form-label">Roll No / Student ID</label>
                                 <input type="text" class="form-control" id="rollNo" placeholder="e.g. CS2024001" required>
+                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">This will be your login username</div>
                             </div>
 
                             <div>
-                                <label for="department" class="form-label">Department / Class</label>
-                                <select class="form-select" id="department" required>
-                                    <option value="" selected disabled>Select class...</option>
-                                    <option value="B.Tech (CS)">B.Tech (CS)</option>
-                                    <option value="BCA (A)">BCA (Section A)</option>
-                                    <option value="BBA">BBA</option>
-                                    <option value="MCA">MCA</option>
+                                <label class="form-label">Course / Programme</label>
+                                <select class="form-select" id="courseId" required>
+                                    <option value="" disabled selected>Loading courses...</option>
                                 </select>
                             </div>
 
-                            <!-- Progress indicator -->
+                            <div>
+                                <label class="form-label">Password</label>
+                                <div style="position:relative;">
+                                    <input type="password" class="form-control" id="password" placeholder="Min. 6 characters" required style="padding-right:2.75rem;">
+                                    <button type="button" id="togglePw" style="position:absolute;right:0.875rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Progress -->
                             <div style="background:var(--bg-elevated);border-radius:var(--r-md);padding:0.875rem;border:1px solid var(--border);margin-top:0.25rem;">
                                 <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.5rem;">
                                     <span>Enrollment Progress</span>
-                                    <span id="progressLabel">Step 1 of 2</span>
+                                    <span id="progressLabel">Fill in fields</span>
                                 </div>
                                 <div class="progress">
-                                    <div class="progress-bar" id="progressBar" style="width:50%;"></div>
+                                    <div class="progress-bar" id="progressBar" style="width:0%;"></div>
                                 </div>
                                 <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">
-                                    <i class="bi bi-info-circle me-1"></i>
+                                    <i class="bi bi-info-circle"></i>
                                     Complete form + capture face to enable registration
                                 </div>
                             </div>
@@ -120,8 +119,11 @@
                             <button type="submit" class="btn btn-primary w-100 btn-lg" id="registerBtn" disabled style="margin-top:0.25rem;">
                                 <i class="bi bi-person-check"></i>
                                 <span id="registerBtnText">Complete Registration</span>
-                                <span class="spinner-border spinner-border-sm d-none ms-2" id="registerSpinner"></span>
                             </button>
+
+                            <div style="text-align:center;font-size:0.8rem;color:var(--text-muted);">
+                                Already registered? <a href="login.html" style="color:var(--purple-light);text-decoration:none;font-weight:600;">Sign in</a>
+                            </div>
 
                         </form>
                     </div>
@@ -131,7 +133,7 @@
 
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
                             <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <div style="width:36px;height:36px;border-radius:10px;background:rgba(12,166,120,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                     <i class="bi bi-camera" style="color:var(--cyan);font-size:1rem;"></i>
                                 </div>
                                 <div>
@@ -145,17 +147,11 @@
                             </div>
                         </div>
 
-                        <!-- Camera Frame -->
                         <div style="flex:1;display:flex;flex-direction:column;gap:1rem;">
-                            <!-- Relative wrapper so capturedPreview can overlay the video -->
                             <div style="position:relative;flex:1;min-height:300px;">
                                 <div class="scanner-frame" id="videoWrapper" style="height:100%;">
                                     <video id="video" autoplay playsinline></video>
-
-                                    <!-- Scan line (shown/hidden by JS) -->
                                     <div id="scanLine"></div>
-
-                                    <!-- Corner brackets -->
                                     <div class="scanner-corners">
                                         <div class="corner tl"></div>
                                         <div class="corner tr"></div>
@@ -163,60 +159,166 @@
                                         <div class="corner br"></div>
                                     </div>
                                 </div>
-
-                                <!-- Captured Preview Overlay — sibling of videoWrapper so JS opacity doesn't compound -->
-                                <div id="capturedPreview" style="display:none;position:absolute;inset:0;text-align:center;padding-top:3rem;background:rgba(7,7,15,0.78);backdrop-filter:blur(8px);z-index:10;border-radius:var(--r-lg);">
-                                    <img id="capturedImg" alt="Captured face" style="max-width:220px;border-radius:var(--r-md);border:2px solid var(--green);box-shadow:0 0 28px rgba(74,222,128,0.45);display:block;margin:0 auto 0.75rem;">
-                                    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);border-radius:100px;padding:0.3rem 0.85rem;font-size:0.78rem;font-weight:700;color:var(--green);">
+                                <div id="capturedPreview" style="display:none;position:absolute;inset:0;text-align:center;padding-top:3rem;background:rgba(238,241,248,0.92);backdrop-filter:blur(8px);z-index:10;border-radius:var(--r-lg);">
+                                    <img id="capturedImg" alt="Captured face" style="max-width:220px;border-radius:var(--r-md);border:2px solid var(--green);box-shadow:0 0 28px rgba(12,166,120,0.35);display:block;margin:0 auto 0.75rem;">
+                                    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(12,166,120,0.12);border:1px solid rgba(12,166,120,0.3);border-radius:100px;padding:0.3rem 0.85rem;font-size:0.78rem;font-weight:700;color:var(--green);">
                                         <i class="bi bi-check-circle-fill"></i> Face Captured
                                     </div>
+                                    <br>
+                                    <button type="button" id="retakeBtn" style="margin-top:0.75rem;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);border-radius:var(--r-md);padding:0.35rem 0.9rem;font-size:0.78rem;cursor:pointer;">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Retake
+                                    </button>
                                 </div>
                             </div>
 
                             <button id="captureBtn" class="btn btn-secondary w-100" disabled style="padding:0.75rem;">
-                                <i class="bi bi-camera me-2"></i> Capture Face
+                                <i class="bi bi-camera"></i> Capture Face
                             </button>
 
-                            <!-- Tip -->
                             <div style="display:flex;align-items:flex-start;gap:8px;font-size:0.75rem;color:var(--text-muted);padding:0.75rem;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border);">
                                 <i class="bi bi-lightbulb" style="color:var(--yellow);margin-top:1px;flex-shrink:0;"></i>
-                                <span>Ensure good lighting and look directly at the camera for best recognition accuracy.</span>
+                                <span>Ensure good lighting and look directly at the camera for best accuracy.</span>
                             </div>
                         </div>
 
                     </div>
-
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- Hidden canvas for capture -->
     <canvas id="canvas" style="display:none;"></canvas>
 
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/shell.js"></script>
-    <script src="js/register.js"></script>
+    <script src="js/auth.js"></script>
 
     <script>
-        // Progress bar update based on form state
-        const fields = ['name', 'email', 'rollNo', 'department'];
+    document.addEventListener('DOMContentLoaded', async () => {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const capturedPreview = document.getElementById('capturedPreview');
+        const capturedImg = document.getElementById('capturedImg');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressLabel = document.getElementById('progressLabel');
+        const courseSelect = document.getElementById('courseId');
+
+        let capturedBlob = null;
+        let isCameraOn = false;
+
+        // Load courses
+        try {
+            const { courses } = await API.getCourses();
+            courseSelect.innerHTML = '<option value="" disabled selected>Select your course...</option>';
+            courses.forEach(c => {
+                courseSelect.innerHTML += `<option value="${c.id}">${c.name} (${c.code})</option>`;
+            });
+        } catch {
+            courseSelect.innerHTML = '<option value="" disabled selected>Failed to load — refresh</option>';
+        }
+
+        // Start camera
+        try {
+            const ok = await Shell.startCamera(video, canvas);
+            if (ok) {
+                isCameraOn = true;
+                captureBtn.disabled = false;
+                document.getElementById('scanLine').style.display = 'block';
+            } else {
+                document.getElementById('cameraStatus').innerHTML = '<i class="bi bi-x-circle-fill"></i> Camera Off';
+                document.getElementById('cameraStatus').className = 'badge';
+                document.getElementById('cameraStatus').style.background = 'rgba(248,113,113,0.15)';
+                document.getElementById('cameraStatus').style.color = 'var(--red)';
+            }
+        } catch {}
+
+        // Progress tracking
+        const fields = ['name', 'email', 'rollNo', 'courseId', 'password'];
         function updateProgress() {
             const filled = fields.filter(id => document.getElementById(id)?.value?.trim()).length;
-            const hasFace = document.getElementById('capturedPreview')?.style.display !== 'none';
+            const hasFace = capturedBlob !== null;
             const total = fields.length + 1;
             const done = filled + (hasFace ? 1 : 0);
             const pct = Math.round((done / total) * 100);
-            document.getElementById('progressBar').style.width = pct + '%';
-            document.getElementById('progressLabel').textContent =
-                hasFace ? 'Ready to register!' : `Step ${Math.min(filled+1,2)} of 2`;
+            progressBar.style.width = pct + '%';
+            progressLabel.textContent = hasFace ? (done === total ? 'Ready!' : `${done}/${total} complete`) : `${filled}/${fields.length} fields`;
+            registerBtn.disabled = !(hasFace && filled === fields.length);
         }
         fields.forEach(id => {
             document.getElementById(id)?.addEventListener('input', updateProgress);
+            document.getElementById(id)?.addEventListener('change', updateProgress);
         });
+
+        // Capture
+        captureBtn.addEventListener('click', () => {
+            if (!isCameraOn) return;
+            const dataUrl = Shell.captureFrame();
+            if (!dataUrl) { Toast.error('Capture failed'); return; }
+
+            capturedImg.src = dataUrl;
+            capturedPreview.style.display = 'block';
+            capturedBlob = Shell.dataURLToBlob(dataUrl);
+            captureBtn.textContent = 'Re-capture';
+            updateProgress();
+        });
+
+        retakeBtn.addEventListener('click', () => {
+            capturedPreview.style.display = 'none';
+            capturedBlob = null;
+            updateProgress();
+        });
+
+        // Toggle password visibility
+        document.getElementById('togglePw').addEventListener('click', () => {
+            const pw = document.getElementById('password');
+            const icon = document.querySelector('#togglePw i');
+            pw.type = pw.type === 'password' ? 'text' : 'password';
+            icon.className = pw.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+        });
+
+        // Submit
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!capturedBlob) { Toast.error('Please capture your face first'); return; }
+
+            const pw = document.getElementById('password').value;
+            if (pw.length < 6) { Toast.error('Password must be at least 6 characters'); return; }
+
+            registerBtn.disabled = true;
+            document.getElementById('registerBtnText').textContent = 'Registering...';
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value.trim());
+            formData.append('email', document.getElementById('email').value.trim());
+            formData.append('roll_no', document.getElementById('rollNo').value.trim());
+            formData.append('course_id', document.getElementById('courseId').value);
+            formData.append('password', pw);
+            formData.append('image', capturedBlob, 'face.jpg');
+
+            try {
+                const data = await API.registerUser(formData);
+                Auth.setAuth(data.token, data.user, data.student);
+                Toast.success('Registration successful! Redirecting...');
+                setTimeout(() => window.location.href = 'student.html', 1200);
+            } catch (err) {
+                Toast.error(err.message || 'Registration failed');
+                registerBtn.disabled = false;
+                document.getElementById('registerBtnText').textContent = 'Complete Registration';
+            }
+        });
+
+        window.addEventListener('beforeunload', () => Shell.stopCamera());
+    });
     </script>
+
+    <style>
+    @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+    </style>
 </body>
 </html>

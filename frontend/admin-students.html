@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students — SMAART Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="admin.html">
+            <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
+            SMAART
+        </a>
+        <nav class="sidebar-nav"></nav>
+        <div class="sidebar-footer">
+            <a class="btn btn-primary w-100" href="attendance.html">
+                <i class="bi bi-lightning-charge"></i> Quick Scan
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <a href="admin.html" style="color:var(--text-muted);text-decoration:none;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px;margin-bottom:0.5rem;">
+                    <i class="bi bi-arrow-left"></i> Dashboard
+                </a>
+                <div class="badge badge-purple" style="margin-bottom:0.5rem;">
+                    <i class="bi bi-mortarboard"></i> Students Module
+                </div>
+                <h2 class="page-title">Manage Students</h2>
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+                <span id="studentCount" class="badge badge-purple" style="font-size:0.8rem;padding:0.4rem 0.9rem;"></span>
+                <a href="register.html" class="btn btn-sm btn-primary">
+                    <i class="bi bi-person-plus"></i> Enroll Student
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card" style="margin-bottom:1.25rem;padding:1rem 1.25rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                <div style="position:relative;flex:1;min-width:220px;">
+                    <i class="bi bi-search" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+                    <input class="form-control" id="searchInput" placeholder="Search by name, email or roll no..."
+                           style="padding-left:2.4rem;" oninput="filterTable()">
+                </div>
+                <select class="form-select" id="courseFilter" style="width:180px;" onchange="filterTable()">
+                    <option value="">All Courses</option>
+                </select>
+                <button class="btn btn-sm btn-outline" onclick="loadStudents()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="card">
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Roll No</th>
+                            <th>Course</th>
+                            <th>Email</th>
+                            <th>Registered</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/toast.js"></script>
+
+<script>
+Auth.requireRole(['admin']);
+Auth.renderSidebar();
+
+let allStudents = [];
+
+async function init() {
+    // Load course filter options
+    try {
+        const { courses } = await API.getCourses();
+        const sel = document.getElementById('courseFilter');
+        courses.forEach(c => {
+            sel.innerHTML += `<option value="${c.code}">${c.name} (${c.code})</option>`;
+        });
+    } catch {}
+    loadStudents();
+}
+
+async function loadStudents() {
+    const tbody = document.getElementById('studentTableBody');
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem;">Loading...</td></tr>';
+    try {
+        const { students } = await API.admin.getStudents();
+        allStudents = students;
+        document.getElementById('studentCount').textContent = `${students.length} students`;
+        renderTable(students);
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--red);padding:2rem;">${err.message}</td></tr>`;
+    }
+}
+
+function filterTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const course = document.getElementById('courseFilter').value;
+    const filtered = allStudents.filter(s => {
+        const matchSearch = !search ||
+            s.name.toLowerCase().includes(search) ||
+            s.email.toLowerCase().includes(search) ||
+            s.roll_no.toLowerCase().includes(search);
+        const matchCourse = !course || (s.course && s.course.code === course);
+        return matchSearch && matchCourse;
+    });
+    renderTable(filtered);
+}
+
+function renderTable(students) {
+    const tbody = document.getElementById('studentTableBody');
+    if (!students.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem;">No students found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = students.map((s, i) => `
+        <tr>
+            <td style="color:var(--text-muted);font-size:0.78rem;">${i + 1}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:rgba(61,90,241,0.1);border:1px solid rgba(61,90,241,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;font-weight:800;color:var(--purple-light);">${s.name.charAt(0)}</div>
+                    <strong style="color:var(--text-primary);">${s.name}</strong>
+                </div>
+            </td>
+            <td><span class="badge badge-purple" style="font-size:0.7rem;">${s.roll_no}</span></td>
+            <td>${s.course ? `<span class="badge badge-cyan" style="font-size:0.7rem;">${s.course.code}</span><span style="font-size:0.72rem;color:var(--text-muted);margin-left:6px;">${s.course.name}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
+            <td style="color:var(--text-muted);font-size:0.82rem;">${s.email}</td>
+            <td style="color:var(--text-muted);font-size:0.78rem;">${s.created_at ? new Date(s.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+            <td>
+                <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);"
+                    onclick="deleteStudent(${s.id}, '${s.name}')">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function deleteStudent(id, name) {
+    if (!confirm(`Remove student "${name}"? Their face data and attendance records will be deleted.`)) return;
+    try {
+        await API.admin.deleteStudent(id);
+        Toast.success(`${name} removed`);
+        loadStudents();
+    } catch (err) { Toast.error(err.message); }
+}
+
+init();
+</script>
+
+<style>
+.btn-outline {
+    background:transparent;border:1px solid var(--border);color:var(--text-secondary);
+    padding:0.5rem 0.875rem;border-radius:var(--r-md);font-size:0.875rem;cursor:pointer;
+    transition:border-color var(--t-base),color var(--t-base);display:inline-flex;
+    align-items:center;gap:0.4rem;
+}
+.btn-outline:hover { border-color:var(--purple-light);color:var(--purple-light); }
+</style>
+</body>
+</html>

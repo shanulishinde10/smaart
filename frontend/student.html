@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance — SMAART</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="index.html">
+            <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
+            SMAART
+        </a>
+        <nav class="sidebar-nav"></nav>
+        <div class="sidebar-footer">
+            <a class="btn btn-primary w-100" href="attendance.html">
+                <i class="bi bi-lightning-charge"></i> Mark Attendance
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <div class="badge badge-green" style="margin-bottom:0.5rem;">
+                    <i class="bi bi-person-check"></i> Student Portal
+                </div>
+                <h2 class="page-title" id="welcomeTitle">My Attendance</h2>
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+                <span class="badge badge-cyan" id="courseBadge"></span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" style="margin-bottom:1.5rem;">
+            <div class="stat-card glow-green">
+                <div class="stat-icon" style="background:rgba(12,166,120,0.12);"><i class="bi bi-check-circle" style="color:var(--green);"></i></div>
+                <div class="stat-value" id="statPresent">—</div>
+                <div class="stat-label">Present</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(224,49,49,0.1);"><i class="bi bi-x-circle" style="color:var(--red);"></i></div>
+                <div class="stat-value" id="statAbsent">—</div>
+                <div class="stat-label">Absent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(230,119,0,0.1);"><i class="bi bi-clock" style="color:var(--yellow);"></i></div>
+                <div class="stat-value" id="statPending">—</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-card glow-purple">
+                <div class="stat-icon" style="background:rgba(61,90,241,0.12);"><i class="bi bi-percent" style="color:var(--purple-light);"></i></div>
+                <div class="stat-value" id="statPct">—</div>
+                <div class="stat-label">Attendance %</div>
+            </div>
+        </div>
+
+        <!-- Today's Lectures -->
+        <div class="card" style="margin-bottom:1.25rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                    <i class="bi bi-calendar-day" style="color:var(--cyan);"></i> Today's Lectures
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="loadTodayLectures()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+            <div id="todayLectures" style="display:flex;flex-direction:column;gap:0.625rem;">
+                <div class="skeleton-row"></div>
+            </div>
+        </div>
+
+        <!-- Attendance History -->
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                    <i class="bi bi-clock-history" style="color:var(--purple-light);"></i> Attendance History
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="loadHistory()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Lecture</th>
+                            <th>Course</th>
+                            <th>Date</th>
+                            <th>Scan Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/toast.js"></script>
+
+<script>
+Auth.requireRole(['student']);
+Auth.renderSidebar();
+
+const user = Auth.getUser();
+const profile = Auth.getProfile();
+
+// Welcome title
+if (profile) {
+    document.getElementById('welcomeTitle').textContent = `Hi, ${profile.name.split(' ')[0]}`;
+}
+if (profile?.course) {
+    const badge = document.getElementById('courseBadge');
+    badge.textContent = `${profile.course.name} (${profile.course.code})`;
+}
+
+async function loadHistory() {
+    const tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>';
+
+    try {
+        const { records } = await API.student.getMyAttendance();
+
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:3rem;">No attendance records yet.<br>Go to the Scanner to mark your attendance.</td></tr>';
+            updateStats([]);
+            return;
+        }
+
+        updateStats(records);
+
+        tbody.innerHTML = records.map(r => `
+            <tr>
+                <td><strong style="color:var(--text-primary);">${r.lecture?.title || '—'}</strong></td>
+                <td>${r.lecture?.course ? `<span class="badge badge-cyan" style="font-size:0.7rem;">${r.lecture.course.code}</span>` : '—'}</td>
+                <td style="color:var(--text-muted);font-size:0.82rem;">${r.date || '—'}</td>
+                <td style="color:var(--text-muted);font-size:0.78rem;">${r.scan_time ? new Date(r.scan_time).toLocaleTimeString() : '—'}</td>
+                <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--red);padding:2rem;">${err.message}</td></tr>`;
+    }
+}
+
+function updateStats(records) {
+    const present = records.filter(r => r.status === 'present').length;
+    const absent = records.filter(r => r.status === 'absent').length;
+    const pending = records.filter(r => r.status === 'pending').length;
+    const total = present + absent;
+    const pct = total > 0 ? Math.round((present / total) * 100) : 0;
+
+    document.getElementById('statPresent').textContent = present;
+    document.getElementById('statAbsent').textContent = absent;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statPct').textContent = total > 0 ? pct + '%' : '—';
+}
+
+async function loadTodayLectures() {
+    const container = document.getElementById('todayLectures');
+    container.innerHTML = '<div class="skeleton-row"></div>';
+    try {
+        const { lectures } = await API.student.getMyLectures();
+        if (!lectures.length) {
+            container.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:1.25rem;">No lectures scheduled for your course today.<br>Check with your professor.</div>';
+            return;
+        }
+        container.innerHTML = lectures.map(l => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border);">
+                <div>
+                    <div style="font-weight:700;font-size:0.88rem;color:var(--text-primary);">${l.title}</div>
+                    <div style="display:flex;gap:6px;margin-top:4px;align-items:center;">
+                        <span class="badge badge-cyan" style="font-size:0.65rem;">${l.course?.code || ''}</span>
+                        <span style="font-size:0.72rem;color:var(--text-muted);">by ${l.professor_name || 'Professor'}</span>
+                    </div>
+                </div>
+                <a href="attendance.html?lecture=${l.id}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-camera"></i> Scan
+                </a>
+            </div>
+        `).join('');
+    } catch (err) {
+        container.innerHTML = `<div style="color:var(--red);font-size:0.82rem;text-align:center;padding:1rem;">${err.message}</div>`;
+    }
+}
+
+loadHistory();
+loadTodayLectures();
+</script>
+</body>
+</html>

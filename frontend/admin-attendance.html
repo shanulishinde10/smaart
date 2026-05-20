@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance — SMAART Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <aside class="sidebar">
+        <a class="sidebar-brand" href="admin.html">
+            <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
+            SMAART
+        </a>
+        <nav class="sidebar-nav"></nav>
+        <div class="sidebar-footer">
+            <a class="btn btn-primary w-100" href="attendance.html">
+                <i class="bi bi-lightning-charge"></i> Quick Scan
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <a href="admin.html" style="color:var(--text-muted);text-decoration:none;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px;margin-bottom:0.5rem;">
+                    <i class="bi bi-arrow-left"></i> Dashboard
+                </a>
+                <div class="badge badge-green" style="margin-bottom:0.5rem;">
+                    <i class="bi bi-calendar-check"></i> Attendance Module
+                </div>
+                <h2 class="page-title">Manage Attendance</h2>
+            </div>
+        </div>
+
+        <!-- Summary mini-stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;margin-bottom:1.25rem;">
+            <div class="card" style="padding:1rem;border-top:2px solid var(--green);display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(12,166,120,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-check-circle-fill" style="color:var(--green);"></i>
+                </div>
+                <div><div class="stat-value" id="ms-present" style="font-size:1.4rem;">—</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Present</div></div>
+            </div>
+            <div class="card" style="padding:1rem;border-top:2px solid var(--red);display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(224,49,49,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-x-circle-fill" style="color:var(--red);"></i>
+                </div>
+                <div><div class="stat-value" id="ms-absent" style="font-size:1.4rem;">—</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Absent</div></div>
+            </div>
+            <div class="card" style="padding:1rem;border-top:2px solid var(--yellow);display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(230,119,0,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-hourglass-split" style="color:var(--yellow);"></i>
+                </div>
+                <div><div class="stat-value" id="ms-pending" style="font-size:1.4rem;">—</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Pending</div></div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card" style="margin-bottom:1.25rem;padding:1rem 1.25rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:600;color:var(--text-muted);">
+                    <i class="bi bi-funnel"></i> Filters:
+                </div>
+                <input type="date" class="form-control" id="dateFilter" style="width:160px;">
+                <select class="form-select" id="statusFilter" style="width:140px;">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                </select>
+                <button class="btn btn-sm btn-primary" onclick="loadAttendance()"><i class="bi bi-funnel-fill"></i> Apply</button>
+                <button class="btn btn-sm btn-outline" onclick="clearFilters()"><i class="bi bi-x"></i> Clear</button>
+                <button class="btn btn-sm btn-outline" onclick="loadAttendance()" style="margin-left:auto;"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem;">
+                <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                    <i class="bi bi-list-check" style="color:var(--green);"></i>
+                    Attendance Records
+                </div>
+                <span id="recordCount" class="badge badge-green" style="font-size:0.78rem;"></span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Roll No</th>
+                            <th>Lecture</th>
+                            <th>Course</th>
+                            <th>Professor</th>
+                            <th>Date</th>
+                            <th>Scan Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:3rem;">Apply filters and click Apply to load records</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/toast.js"></script>
+
+<script>
+Auth.requireRole(['admin']);
+Auth.renderSidebar();
+
+// Default to today
+document.getElementById('dateFilter').value = new Date().toISOString().split('T')[0];
+
+function clearFilters() {
+    document.getElementById('dateFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    loadAttendance();
+}
+
+async function loadAttendance() {
+    const tbody = document.getElementById('attendanceTableBody');
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:3rem;">Loading...</td></tr>';
+
+    const params = {};
+    const d = document.getElementById('dateFilter').value;
+    const s = document.getElementById('statusFilter').value;
+    if (d) params.date = d;
+    if (s) params.status = s;
+
+    try {
+        const { records } = await API.admin.getAttendance(params);
+        document.getElementById('recordCount').textContent = `${records.length} records`;
+
+        const present = records.filter(r => r.status === 'present').length;
+        const absent = records.filter(r => r.status === 'absent').length;
+        const pending = records.filter(r => r.status === 'pending').length;
+        document.getElementById('ms-present').textContent = present;
+        document.getElementById('ms-absent').textContent = absent;
+        document.getElementById('ms-pending').textContent = pending;
+
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:3rem;">No records found for selected filters</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = records.map(r => `
+            <tr>
+                <td><strong style="color:var(--text-primary);">${r.student_name || '—'}</strong></td>
+                <td><span class="badge badge-purple" style="font-size:0.68rem;">${r.student_roll_no || '—'}</span></td>
+                <td style="font-size:0.82rem;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.lecture?.title || ''}">${r.lecture?.title || '—'}</td>
+                <td>${r.lecture?.course ? `<span class="badge badge-cyan" style="font-size:0.65rem;">${r.lecture.course.code}</span>` : '—'}</td>
+                <td style="font-size:0.78rem;color:var(--text-muted);">${r.lecture?.professor_name || '—'}</td>
+                <td style="font-size:0.78rem;color:var(--text-muted);">${r.date || '—'}</td>
+                <td style="font-size:0.78rem;color:var(--text-muted);">${r.scan_time ? new Date(r.scan_time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+                <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+                <td>
+                    <div style="display:flex;gap:4px;">
+                        <button class="btn btn-sm" style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green);" title="Mark Present"
+                            onclick="updateAtt(${r.id},'present')"><i class="bi bi-check-lg"></i></button>
+                        <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);" title="Mark Absent"
+                            onclick="updateAtt(${r.id},'absent')"><i class="bi bi-x-lg"></i></button>
+                        <button class="btn btn-sm" style="background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted);" title="Delete"
+                            onclick="deleteAtt(${r.id})"><i class="bi bi-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:2rem;">${err.message}</td></tr>`;
+    }
+}
+
+async function updateAtt(id, status) {
+    try {
+        await API.admin.updateAttendance(id, { status });
+        Toast.success(`Marked ${status}`);
+        loadAttendance();
+    } catch (err) { Toast.error(err.message); }
+}
+
+async function deleteAtt(id) {
+    if (!confirm('Delete this attendance record?')) return;
+    try {
+        await API.admin.deleteAttendance(id);
+        Toast.success('Record deleted');
+        loadAttendance();
+    } catch (err) { Toast.error(err.message); }
+}
+
+// Load today by default
+loadAttendance();
+</script>
+
+<style>
+.btn-outline {
+    background:transparent;border:1px solid var(--border);color:var(--text-secondary);
+    padding:0.5rem 0.875rem;border-radius:var(--r-md);font-size:0.875rem;cursor:pointer;
+    transition:border-color var(--t-base),color var(--t-base);display:inline-flex;
+    align-items:center;gap:0.4rem;
+}
+.btn-outline:hover { border-color:var(--green);color:var(--green); }
+</style>
+</body>
+</html>

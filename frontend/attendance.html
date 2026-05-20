@@ -13,25 +13,10 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <a class="sidebar-brand" href="index.html">
-                <div class="sidebar-logo-icon">
-                    <i class="bi bi-person-bounding-box"></i>
-                </div>
+                <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
                 SMAART
             </a>
-            <nav class="sidebar-nav">
-                <a class="nav-link" href="index.html">
-                    <i class="bi bi-house-door"></i> Home
-                </a>
-                <a class="nav-link" href="register.html">
-                    <i class="bi bi-person-plus"></i> Register
-                </a>
-                <a class="nav-link active" href="attendance.html">
-                    <i class="bi bi-camera"></i> Scanner
-                </a>
-                <a class="nav-link" href="reports.html">
-                    <i class="bi bi-bar-chart-line"></i> Dashboard
-                </a>
-            </nav>
+            <nav class="sidebar-nav"></nav>
             <div class="sidebar-footer">
                 <a class="btn btn-primary w-100" href="attendance.html">
                     <i class="bi bi-lightning-charge"></i> Quick Scan
@@ -54,9 +39,33 @@
                     <span class="badge badge-green" id="cameraStatus">
                         <i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Camera Active
                     </span>
-                    <span class="badge" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-muted);" id="todayCount">
+                    <span class="badge" style="background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted);" id="todayCount">
                         <i class="bi bi-people"></i> 0 today
                     </span>
+                </div>
+            </div>
+
+            <!-- Lecture Selector -->
+            <div class="card" style="margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(61,90,241,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="bi bi-easel" style="color:var(--purple-light);font-size:1rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Select Lecture</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);">Choose the lecture you want to mark attendance for</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                    <select class="form-select" id="lectureSelect" style="flex:1;min-width:200px;">
+                        <option value="" disabled selected>Loading lectures...</option>
+                    </select>
+                    <button class="btn btn-outline btn-sm" onclick="loadLectures()" title="Refresh lectures">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+                <div id="lectureInfo" style="display:none;margin-top:0.75rem;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border);font-size:0.82rem;">
+                    <div id="lectureInfoText" style="color:var(--text-secondary);"></div>
                 </div>
             </div>
 
@@ -69,7 +78,7 @@
 
                         <div style="display:flex;align-items:center;justify-content:space-between;">
                             <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <div style="width:36px;height:36px;border-radius:10px;background:rgba(12,166,120,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                     <i class="bi bi-webcam" style="color:var(--cyan);font-size:1rem;"></i>
                                 </div>
                                 <div>
@@ -86,22 +95,16 @@
                         <!-- Camera Frame -->
                         <div class="scanner-frame" style="flex:1;min-height:360px;">
                             <video id="video" autoplay playsinline></video>
-
-                            <!-- Animated scan line -->
                             <div id="scanLine"></div>
-
-                            <!-- Corner brackets -->
                             <div class="scanner-corners">
                                 <div class="corner tl"></div>
                                 <div class="corner tr"></div>
                                 <div class="corner bl"></div>
                                 <div class="corner br"></div>
                             </div>
-
-                            <!-- Centre target ring -->
                             <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;">
-                                <div style="width:120px;height:120px;border-radius:50%;border:1.5px dashed rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;">
-                                    <div style="width:60px;height:60px;border-radius:50%;border:1.5px solid rgba(34,211,238,0.15);"></div>
+                                <div style="width:120px;height:120px;border-radius:50%;border:1.5px dashed rgba(61,90,241,0.3);display:flex;align-items:center;justify-content:center;">
+                                    <div style="width:60px;height:60px;border-radius:50%;border:1.5px solid rgba(61,90,241,0.2);"></div>
                                 </div>
                             </div>
                         </div>
@@ -140,16 +143,13 @@
                             </div>
 
                             <div id="resultArea">
-                                <!-- Waiting state -->
                                 <div id="waitingText" class="result-idle">
-                                    <div style="width:64px;height:64px;border-radius:50%;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:0.5rem;animation:livePulse 3s ease infinite;">
+                                    <div style="width:64px;height:64px;border-radius:50%;background:rgba(61,90,241,0.08);border:1px solid rgba(61,90,241,0.18);display:flex;align-items:center;justify-content:center;margin-bottom:0.5rem;animation:livePulse 3s ease infinite;">
                                         <i class="bi bi-person-bounding-box" style="font-size:1.75rem;color:var(--purple-light);opacity:0.6;"></i>
                                     </div>
-                                    <span style="font-size:0.875rem;font-weight:600;">Waiting for face scan...</span>
-                                    <span style="font-size:0.75rem;">Press the scan button to begin</span>
+                                    <span style="font-size:0.875rem;font-weight:600;">Select a lecture, then scan</span>
+                                    <span style="font-size:0.75rem;">Attendance is submitted for professor review</span>
                                 </div>
-
-                                <!-- Result (shown by JS) -->
                                 <div id="attendanceResult" style="display:none;text-align:center;">
                                     <div id="resultIcon" style="font-size:3.5rem;margin-bottom:0.5rem;"></div>
                                     <h3 id="resultName" style="font-size:1.25rem;font-weight:800;margin-bottom:0.25rem;color:var(--text-primary);"></h3>
@@ -168,13 +168,10 @@
                                 </div>
                                 <span class="badge badge-cyan" id="recentCount">Today</span>
                             </div>
-
                             <div id="todayAttendance" style="max-height:280px;overflow-y:auto;">
-                                <!-- Loading skeleton -->
                                 <div style="display:flex;flex-direction:column;gap:8px;">
                                     <div style="height:52px;border-radius:var(--r-md);background:var(--bg-elevated);animation:shimmer 1.5s ease infinite;" class="skeleton-item"></div>
                                     <div style="height:52px;border-radius:var(--r-md);background:var(--bg-elevated);animation:shimmer 1.5s 0.3s ease infinite;" class="skeleton-item"></div>
-                                    <div style="height:52px;border-radius:var(--r-md);background:var(--bg-elevated);animation:shimmer 1.5s 0.6s ease infinite;" class="skeleton-item"></div>
                                 </div>
                             </div>
                         </div>
@@ -190,16 +187,259 @@
     <canvas id="canvas" style="display:none;"></canvas>
 
     <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/shell.js"></script>
-    <script src="js/attendance.js"></script>
+
+    <script>
+    // Auth render (optional — scanner is accessible without login for kiosk use)
+    if (Auth.isLoggedIn()) Auth.renderSidebar();
+    else {
+        // Show minimal nav for non-logged-in users
+        const nav = document.querySelector('.sidebar-nav');
+        if (nav) nav.innerHTML = `
+            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+            <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Register</a>
+            <a class="nav-link active" href="attendance.html"><i class="bi bi-camera"></i> Scanner</a>
+            <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const attendanceResult = document.getElementById('attendanceResult');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultName = document.getElementById('resultName');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultDetails = document.getElementById('resultDetails');
+        const todayAttendance = document.getElementById('todayAttendance');
+        const scanLine = document.getElementById('scanLine');
+        const waitingText = document.getElementById('waitingText');
+        const lectureSelect = document.getElementById('lectureSelect');
+
+        let isCameraRunning = false;
+        let activeLectureId = null;
+
+        // Check if lecture pre-selected via URL param (from student.html links)
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectedLecture = urlParams.get('lecture');
+
+        // Load lectures
+        async function loadLectures() {
+            lectureSelect.innerHTML = '<option value="" disabled selected>Loading lectures...</option>';
+            captureBtn.disabled = true;
+
+            try {
+                // Use student's course if logged in, else show all
+                const user = Auth.getUser();
+                const profile = Auth.getProfile();
+                const courseId = (user?.role === 'student' && profile?.course) ? profile.course.id : null;
+
+                const { lectures } = await API.getTodayLectures(courseId);
+                if (!lectures.length) {
+                    lectureSelect.innerHTML = '<option value="" disabled selected>No lectures scheduled today</option>';
+                    return;
+                }
+
+                lectureSelect.innerHTML = '<option value="" disabled selected>Select a lecture...</option>';
+                lectures.forEach(l => {
+                    lectureSelect.innerHTML += `<option value="${l.id}">${l.title} — ${l.course?.code || ''} (${l.professor_name || 'Prof.'})</option>`;
+                });
+
+                // Auto-select if coming from student portal
+                if (preselectedLecture) {
+                    lectureSelect.value = preselectedLecture;
+                    lectureSelect.dispatchEvent(new Event('change'));
+                }
+            } catch (err) {
+                lectureSelect.innerHTML = `<option value="" disabled selected>Error: ${err.message}</option>`;
+            }
+        }
+
+        // Expose loadLectures globally for the refresh button
+        window.loadLectures = loadLectures;
+
+        lectureSelect.addEventListener('change', () => {
+            activeLectureId = lectureSelect.value ? parseInt(lectureSelect.value) : null;
+            window._activeLectureId = activeLectureId;
+
+            const info = document.getElementById('lectureInfo');
+            const infoText = document.getElementById('lectureInfoText');
+
+            if (activeLectureId) {
+                const opt = lectureSelect.options[lectureSelect.selectedIndex];
+                info.style.display = 'block';
+                infoText.innerHTML = `<i class="bi bi-info-circle" style="color:var(--cyan);margin-right:6px;"></i><strong>${opt.text}</strong> — attendance will be submitted for professor review`;
+                if (isCameraRunning) captureBtn.disabled = false;
+            } else {
+                info.style.display = 'none';
+                captureBtn.disabled = true;
+            }
+        });
+
+        // Start camera
+        try {
+            const success = await Shell.startCamera(video, canvas);
+            if (success) {
+                isCameraRunning = true;
+                if (activeLectureId) captureBtn.disabled = false;
+                scanLine.style.display = 'block';
+            } else {
+                setCameraError();
+            }
+        } catch { setCameraError(); }
+
+        function setCameraError() {
+            const cs = document.getElementById('cameraStatus');
+            cs.className = 'badge';
+            cs.style.background = 'rgba(248,113,113,0.15)';
+            cs.style.color = 'var(--red)';
+            cs.innerHTML = '<i class="bi bi-x-circle-fill"></i> Camera Off';
+        }
+
+        // Scan button
+        captureBtn.addEventListener('click', async () => {
+            if (!isCameraRunning) return;
+            if (!activeLectureId) { Toast.warning('Please select a lecture first'); return; }
+
+            const imageData = Shell.captureFrame();
+            if (!imageData) { Toast.error('Failed to capture image'); return; }
+
+            captureBtn.disabled = true;
+            const originalText = captureBtn.innerHTML;
+            captureBtn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;"></span>Processing...';
+            scanLine.style.animation = 'scan 0.5s linear infinite';
+            waitingText.style.display = 'none';
+
+            try {
+                const result = await API.scan(activeLectureId, imageData);
+                attendanceResult.style.display = 'block';
+                attendanceResult.className = 'fade-in';
+                void attendanceResult.offsetWidth;
+
+                if (result.status === 'success') {
+                    resultIcon.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                    resultIcon.style.color = 'var(--cyan)';
+                    resultName.textContent = result.name || 'Unknown';
+                    resultMessage.textContent = 'Submitted — awaiting professor review';
+                    resultMessage.style.color = 'var(--cyan)';
+                    resultDetails.innerHTML = `
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border);">
+                            <span style="color:var(--text-muted);">Roll No</span>
+                            <span style="font-weight:600;color:var(--text-primary);">${result.roll_no || 'N/A'}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Time</span>
+                            <span style="font-weight:600;color:var(--text-primary);">${result.time || new Date().toLocaleTimeString()}</span>
+                        </div>
+                    `;
+                    Toast.success(`${result.name} — submitted for review`);
+                } else if (result.status === 'already_submitted') {
+                    resultIcon.innerHTML = '<i class="bi bi-info-circle-fill"></i>';
+                    resultIcon.style.color = 'var(--yellow)';
+                    resultName.textContent = result.name || 'Already Submitted';
+                    resultMessage.textContent = result.message;
+                    resultMessage.style.color = 'var(--yellow)';
+                    const statusColors = { present: 'var(--green)', absent: 'var(--red)', pending: 'var(--yellow)' };
+                    resultDetails.innerHTML = `
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Status</span>
+                            <span style="font-weight:700;color:${statusColors[result.attendance_status] || 'var(--text-secondary)'};">${result.attendance_status || 'pending'}</span>
+                        </div>
+                    `;
+                    Toast.info('Already submitted for this lecture');
+                } else {
+                    resultIcon.innerHTML = '<i class="bi bi-person-x-fill"></i>';
+                    resultIcon.style.color = 'var(--red)';
+                    resultName.textContent = 'Not Recognized';
+                    resultMessage.textContent = result.message || 'Face not recognized. Please register first.';
+                    resultMessage.style.color = 'var(--red)';
+                    resultDetails.innerHTML = '';
+                    Toast.warning('Face not recognized');
+                }
+
+                loadTodayRecords();
+            } catch (err) {
+                resultIcon.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+                resultIcon.style.color = 'var(--red)';
+                resultName.textContent = 'Error';
+                resultMessage.textContent = err.message;
+                resultMessage.style.color = 'var(--red)';
+                resultDetails.innerHTML = '';
+                attendanceResult.style.display = 'block';
+                Toast.error('Scan failed');
+            }
+
+            captureBtn.disabled = false;
+            captureBtn.innerHTML = originalText;
+            scanLine.style.animation = 'scan 2s linear infinite';
+        });
+
+        async function loadTodayRecords() {
+            try {
+                // Use admin attendance endpoint if logged in as admin, otherwise show message
+                const user = Auth.getUser();
+                let records = [];
+
+                if (user && (user.role === 'admin' || user.role === 'professor')) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const data = await API.admin.getAttendance({ date: today });
+                    records = data.records || [];
+                } else {
+                    // For students/unauthenticated, just show count placeholder
+                    const todayCount = document.getElementById('todayCount');
+                    todayCount.innerHTML = '<i class="bi bi-check-circle"></i> Submitted';
+                    todayAttendance.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:1.5rem;font-size:0.82rem;">Scan submitted for professor review.</div>';
+                    return;
+                }
+
+                const todayCount = document.getElementById('todayCount');
+                todayCount.innerHTML = `<i class="bi bi-people"></i> ${records.length} today`;
+
+                if (!records.length) {
+                    todayAttendance.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.82rem;">No scans yet today</div>';
+                    return;
+                }
+
+                todayAttendance.innerHTML = records.slice(0, 15).map(r => `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.625rem 0.5rem;border-bottom:1px solid var(--border);">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="bi bi-person" style="color:var(--text-muted);font-size:0.8rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.82rem;color:var(--text-primary);">${r.student_name || 'Unknown'}</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);">${r.student_roll_no || ''}</div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-${r.status}" style="font-size:0.65rem;">${r.status}</span>
+                    </div>
+                `).join('');
+            } catch {}
+        }
+
+        loadLectures();
+        loadTodayRecords();
+
+        window.addEventListener('beforeunload', () => {
+            if (isCameraRunning) Shell.stopCamera();
+        });
+    });
+    </script>
 
     <style>
-        @keyframes shimmer {
-            0%,100% { opacity:0.4; }
-            50%      { opacity:0.7; }
-        }
+    @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .btn-outline {
+        background:transparent;border:1px solid var(--border);color:var(--text-secondary);
+        padding:0.5rem 0.875rem;border-radius:var(--r-md);font-size:0.875rem;cursor:pointer;
+        transition:border-color var(--t-base),color var(--t-base);display:inline-flex;
+        align-items:center;gap:0.4rem;text-decoration:none;
+    }
+    .btn-outline:hover { border-color:var(--purple-light);color:var(--purple-light); }
     </style>
 </body>
 </html>
