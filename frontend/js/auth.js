@@ -1,7 +1,7 @@
 const Auth = {
-    TOKEN_KEY: 'smaart_token',
-    USER_KEY: 'smaart_user',
-    PROFILE_KEY: 'smaart_profile',
+    TOKEN_KEY: 'scanora_token',
+    USER_KEY: 'scanora_user',
+    PROFILE_KEY: 'scanora_profile',
 
     getToken() { return localStorage.getItem(this.TOKEN_KEY); },
     getUser() {

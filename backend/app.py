@@ -12,10 +12,11 @@ from models import (
     Lecture, AttendanceRecord
 )
 from face_utils import (
-    load_image_from_base64, save_uploaded_image,
+    load_image_from_base64,
     get_face_encoding, compare_faces,
     encode_face_encoding, decode_face_encoding
 )
+from s3_utils import upload_face, delete_face
 
 app = Flask(__name__)
 CORS(app)
@@ -23,13 +24,8 @@ CORS(app)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "attendance.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads', 'faces')
-app.config['TEMP_FOLDER'] = os.path.join(BASE_DIR, 'uploads', 'temp')
 
-JWT_SECRET = os.environ.get('JWT_SECRET', 'smaart-secret-key-2024-change-in-prod')
-
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs(app.config['TEMP_FOLDER'], exist_ok=True)
+JWT_SECRET = os.environ.get('JWT_SECRET', 'scanora-secret-key-2024-change-in-prod')
 
 db.init_app(app)
 
@@ -81,7 +77,7 @@ with app.app_context():
     db.create_all()
 
     if not User.query.filter_by(role='admin').first():
-        admin = User(username='admin', email='admin@smaart.edu', role='admin')
+        admin = User(username='admin', email='admin@scanora.edu', role='admin')
         admin.set_password('admin123')
         db.session.add(admin)
 
@@ -178,15 +174,18 @@ def register_student():
     file = request.files['image']
     ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else 'jpg'
     filename = f"{uuid.uuid4().hex}.{ext}"
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    save_uploaded_image(file, filepath)
 
     import cv2
-    image = cv2.imread(filepath)
+    import numpy as np
+    file_bytes = file.read()
+    img_array = np.frombuffer(file_bytes, np.uint8)
+    image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
     encoding = get_face_encoding(image)
     if encoding is None:
-        os.remove(filepath)
         return jsonify({'error': 'No face detected. Please retake the photo.'}), 400
+
+    s3_key = f"faces/{filename}"
+    upload_face(file_bytes, s3_key)
 
     user = User(username=roll_no, email=email, role='student')
     user.set_password(password)
@@ -563,6 +562,32 @@ def professor_review_attendance(rid):
     record.reviewed_at = datetime.now()
     db.session.commit()
     return jsonify({'record': record.to_dict()})
+
+
+@app.route('/api/professor/stats', methods=['GET'])
+@require_auth(['professor'])
+def professor_stats():
+    professor = get_professor(request.user_id)
+    if not professor:
+        return jsonify({'error': 'Professor profile not found'}), 404
+
+    today = date.today()
+    today_lectures = Lecture.query.filter_by(professor_id=professor.id, date=today).all()
+
+    pending_count = sum(
+        AttendanceRecord.query.filter_by(lecture_id=lec.id, status='pending').count()
+        for lec in today_lectures
+    )
+
+    course_ids = [c.id for c in professor.courses]
+    student_count = Student.query.filter(Student.course_id.in_(course_ids)).count() if course_ids else 0
+
+    return jsonify({
+        'today_lectures': len(today_lectures),
+        'pending_reviews': pending_count,
+        'total_courses': len(professor.courses),
+        'total_students': student_count,
+    })
 
 
 # ── Student ────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ const API = {
     headers(json = true) {
         const h = {};
         if (json) h['Content-Type'] = 'application/json';
-        const tok = localStorage.getItem('smaart_token');
+        const tok = localStorage.getItem('scanora_token');
         if (tok) h['Authorization'] = `Bearer ${tok}`;
         return h;
     },
@@ -37,7 +37,7 @@ const API = {
     registerUser(formData) {
         return fetch(`${this.BASE}/register`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('smaart_token') || ''}` },
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('scanora_token') || ''}` },
             body: formData,
         }).then(async r => {
             const d = await r.json();
@@ -87,6 +87,7 @@ const API = {
 
     // ── Professor ──────────────────────────────────────────────────────
     professor: {
+        getStats() { return API.request('/professor/stats'); },
         createLecture(data) { return API.request('/professor/lectures', { method: 'POST', body: JSON.stringify(data) }); },
         getLectures(dateStr) {
             const q = dateStr ? `?date=${dateStr}` : '';

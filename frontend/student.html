@@ -10,7 +10,6 @@
 <body>
 <div class="app-wrapper">
 
-    <!-- Sidebar -->
     <aside class="sidebar">
         <a class="sidebar-brand" href="index.html">
             <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
@@ -26,40 +25,77 @@
 
     <main class="main-content">
 
-        <!-- Header -->
-        <div class="page-header">
-            <div>
-                <div class="badge badge-green" style="margin-bottom:0.5rem;">
-                    <i class="bi bi-person-check"></i> Student Portal
+        <!-- Dashboard Hero -->
+        <div class="admin-hero-banner" style="margin-bottom:1.25rem;">
+            <div class="admin-hero-glow"></div>
+            <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;">
+                <!-- Left: Student info -->
+                <div>
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple-light);margin-bottom:0.3rem;display:flex;align-items:center;gap:6px;">
+                        <span class="live-dot" style="width:5px;height:5px;"></span>
+                        STUDENT PORTAL
+                    </div>
+                    <h2 id="heroWelcome" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:0.35rem;color:#fff;">Welcome back</h2>
+                    <div style="display:flex;align-items:center;gap:0.625rem;flex-wrap:wrap;margin-bottom:0.25rem;">
+                        <span id="heroRoll" style="font-size:0.78rem;color:rgba(255,255,255,0.5);font-family:monospace;"></span>
+                        <span id="heroCourseBadge" style="display:none;background:rgba(12,166,120,0.2);color:#5ff3c4;border:1px solid rgba(12,166,120,0.35);padding:2px 8px;border-radius:4px;font-size:0.68rem;font-weight:700;letter-spacing:0.04em;"></span>
+                    </div>
+                    <p id="heroDates" style="color:rgba(255,255,255,0.45);font-size:0.82rem;margin:0;"></p>
                 </div>
-                <h2 class="page-title" id="welcomeTitle">My Attendance</h2>
-            </div>
-            <div style="display:flex;gap:0.5rem;align-items:center;">
-                <span class="badge badge-cyan" id="courseBadge"></span>
+                <!-- Right: Attendance ring -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;">
+                    <div style="position:relative;width:120px;height:120px;">
+                        <svg width="120" height="120" viewBox="0 0 120 120" style="display:block;">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+                            <circle id="attendanceRing" cx="60" cy="60" r="52" fill="none"
+                                stroke="#0ca678" stroke-width="10" stroke-linecap="round"
+                                stroke-dasharray="326.73" stroke-dashoffset="326.73"
+                                transform="rotate(-90 60 60)"
+                                style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1),stroke 0.5s;"/>
+                        </svg>
+                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                            <div id="ringPct" style="font-size:1.45rem;font-weight:800;color:#fff;line-height:1;">—</div>
+                            <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;">Attendance</div>
+                        </div>
+                    </div>
+                    <div id="ringLabel" style="font-size:0.68rem;color:rgba(255,255,255,0.4);text-align:center;"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="stats-grid" style="margin-bottom:1.5rem;">
-            <div class="stat-card glow-green">
-                <div class="stat-icon" style="background:rgba(12,166,120,0.12);"><i class="bi bi-check-circle" style="color:var(--green);"></i></div>
-                <div class="stat-value" id="statPresent">—</div>
-                <div class="stat-label">Present</div>
+        <!-- Stat Cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
+            <div class="stat-card-v2" style="--card-accent:var(--green);">
+                <div class="stat-card-v2-icon" style="background:rgba(12,166,120,0.12);">
+                    <i class="bi bi-check-circle" style="color:var(--green);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="statPresent">—</div>
+                <div class="stat-card-v2-label">Present</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:rgba(224,49,49,0.1);"><i class="bi bi-x-circle" style="color:var(--red);"></i></div>
-                <div class="stat-value" id="statAbsent">—</div>
-                <div class="stat-label">Absent</div>
+            <div class="stat-card-v2" style="--card-accent:var(--red);">
+                <div class="stat-card-v2-icon" style="background:rgba(224,49,49,0.1);">
+                    <i class="bi bi-x-circle" style="color:var(--red);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="statAbsent">—</div>
+                <div class="stat-card-v2-label">Absent</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:rgba(230,119,0,0.1);"><i class="bi bi-clock" style="color:var(--yellow);"></i></div>
-                <div class="stat-value" id="statPending">—</div>
-                <div class="stat-label">Pending Review</div>
+            <div class="stat-card-v2" style="--card-accent:var(--yellow);">
+                <div class="stat-card-v2-icon" style="background:rgba(230,119,0,0.1);">
+                    <i class="bi bi-clock" style="color:var(--yellow);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="statPending">—</div>
+                <div class="stat-card-v2-label">Pending Review</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
             </div>
-            <div class="stat-card glow-purple">
-                <div class="stat-icon" style="background:rgba(61,90,241,0.12);"><i class="bi bi-percent" style="color:var(--purple-light);"></i></div>
-                <div class="stat-value" id="statPct">—</div>
-                <div class="stat-label">Attendance %</div>
+            <div class="stat-card-v2" style="--card-accent:var(--purple);">
+                <div class="stat-card-v2-icon" style="background:rgba(61,90,241,0.12);">
+                    <i class="bi bi-percent" style="color:var(--purple-light);"></i>
+                </div>
+                <div class="stat-card-v2-value" id="statPct">—</div>
+                <div class="stat-card-v2-label">Attendance %</div>
+                <div class="stat-card-v2-link"><i class="bi bi-arrow-right"></i></div>
             </div>
         </div>
 
@@ -117,14 +153,18 @@ Auth.renderSidebar();
 const user = Auth.getUser();
 const profile = Auth.getProfile();
 
-// Welcome title
 if (profile) {
-    document.getElementById('welcomeTitle').textContent = `Hi, ${profile.name.split(' ')[0]}`;
+    document.getElementById('heroWelcome').textContent = `Hi, ${profile.name.split(' ')[0]}`;
+    document.getElementById('heroRoll').textContent = profile.roll_no || '';
+    if (profile.course) {
+        const badge = document.getElementById('heroCourseBadge');
+        badge.textContent = profile.course.code;
+        badge.style.display = 'inline-block';
+    }
 }
-if (profile?.course) {
-    const badge = document.getElementById('courseBadge');
-    badge.textContent = `${profile.course.name} (${profile.course.code})`;
-}
+document.getElementById('heroDates').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+});
 
 async function loadHistory() {
     const tbody = document.getElementById('historyTableBody');
@@ -166,6 +206,19 @@ function updateStats(records) {
     document.getElementById('statAbsent').textContent = absent;
     document.getElementById('statPending').textContent = pending;
     document.getElementById('statPct').textContent = total > 0 ? pct + '%' : '—';
+
+    // Animate the ring gauge
+    const ring = document.getElementById('attendanceRing');
+    const ringPct = document.getElementById('ringPct');
+    const ringLabel = document.getElementById('ringLabel');
+    if (ring && total > 0) {
+        const circumference = 326.73;
+        ring.style.strokeDashoffset = circumference * (1 - pct / 100);
+        ring.style.stroke = pct >= 75 ? '#0ca678' : pct >= 50 ? '#e67700' : '#e03131';
+        ringPct.textContent = pct + '%';
+        ringLabel.textContent = pct >= 75 ? 'Good standing' : pct >= 50 ? 'Needs improvement' : 'At risk';
+        ringLabel.style.color = pct >= 75 ? 'rgba(95,243,196,0.7)' : pct >= 50 ? 'rgba(230,119,0,0.7)' : 'rgba(224,49,49,0.7)';
+    }
 }
 
 async function loadTodayLectures() {
@@ -199,5 +252,15 @@ async function loadTodayLectures() {
 loadHistory();
 loadTodayLectures();
 </script>
+
+<style>
+.btn-outline {
+    background:transparent;border:1px solid var(--border);color:var(--text-secondary);
+    padding:0.5rem 0.875rem;border-radius:var(--r-md);font-size:0.875rem;cursor:pointer;
+    transition:border-color var(--t-base),color var(--t-base);display:inline-flex;
+    align-items:center;gap:0.4rem;
+}
+.btn-outline:hover { border-color:var(--cyan);color:var(--cyan); }
+</style>
 </body>
 </html>
