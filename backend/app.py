@@ -198,7 +198,7 @@ def register_student():
         email=email,
         roll_no=roll_no,
         course_id=int(course_id),
-        image_path=filename,
+        image_path=s3_key,
         face_encoding=encode_face_encoding(encoding),
     )
     db.session.add(student)
@@ -376,9 +376,7 @@ def admin_delete_student(sid):
         return jsonify({'error': 'Not found'}), 404
     user = student.user
     if student.image_path:
-        img = os.path.join(app.config['UPLOAD_FOLDER'], student.image_path)
-        if os.path.exists(img):
-            os.remove(img)
+        delete_face(student.image_path)
     db.session.delete(student)
     if user:
         db.session.delete(user)
