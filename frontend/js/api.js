@@ -47,10 +47,15 @@ const API = {
     },
 
     // ── Face scan (public) ────────────────────────────────────────────
-    scan(lectureId, imageData) {
+    scan(lectureId, imageData, location = null) {
         return this.request('/scan', {
             method: 'POST',
-            body: JSON.stringify({ lecture_id: lectureId, image: imageData }),
+            body: JSON.stringify({
+                lecture_id: lectureId,
+                image: imageData,
+                latitude: location ? location.latitude : null,
+                longitude: location ? location.longitude : null,
+            }),
         });
     },
 

@@ -223,6 +223,17 @@
         let isCameraRunning = false;
         let activeLectureId = null;
 
+        function getLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) { resolve(null); return; }
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+                    () => resolve(null),
+                    { timeout: 5000 }
+                );
+            });
+        }
+
         // Check if lecture pre-selected via URL param (from student.html links)
         const urlParams = new URLSearchParams(window.location.search);
         const preselectedLecture = urlParams.get('lecture');
@@ -315,7 +326,8 @@
             waitingText.style.display = 'none';
 
             try {
-                const result = await API.scan(activeLectureId, imageData);
+                const location = await getLocation();
+                const result = await API.scan(activeLectureId, imageData, location);
                 attendanceResult.style.display = 'block';
                 attendanceResult.className = 'fade-in';
                 void attendanceResult.offsetWidth;
@@ -326,6 +338,18 @@
                     resultName.textContent = result.name || 'Unknown';
                     resultMessage.textContent = 'Submitted — awaiting professor review';
                     resultMessage.style.color = 'var(--cyan)';
+                    const locationHtml = (result.latitude != null && result.longitude != null)
+                        ? `<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">
+                               <span style="color:var(--text-muted);">Location</span>
+                               <a href="https://www.google.com/maps?q=${result.latitude},${result.longitude}" target="_blank"
+                                  style="font-weight:600;color:var(--cyan);text-decoration:none;font-size:0.78rem;">
+                                  <i class="bi bi-geo-alt-fill"></i> ${result.latitude.toFixed(5)}, ${result.longitude.toFixed(5)}
+                               </a>
+                           </div>`
+                        : `<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">
+                               <span style="color:var(--text-muted);">Location</span>
+                               <span style="color:var(--text-muted);font-size:0.78rem;font-style:italic;">Not available</span>
+                           </div>`;
                     resultDetails.innerHTML = `
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border);">
                             <span style="color:var(--text-muted);">Roll No</span>
@@ -335,6 +359,7 @@
                             <span style="color:var(--text-muted);">Time</span>
                             <span style="font-weight:600;color:var(--text-primary);">${result.time || new Date().toLocaleTimeString()}</span>
                         </div>
+                        ${locationHtml}
                     `;
                     Toast.success(`${result.name} — submitted for review`);
                 } else if (result.status === 'already_submitted') {
@@ -351,14 +376,22 @@
                         </div>
                     `;
                     Toast.info('Already submitted for this lecture');
+                } else if (result.message && result.message.toLowerCase().includes('no face')) {
+                    resultIcon.innerHTML = '<i class="bi bi-camera-video-off-fill"></i>';
+                    resultIcon.style.color = 'var(--yellow)';
+                    resultName.textContent = 'No Face Detected';
+                    resultMessage.textContent = 'Move closer, face the camera directly, and ensure good lighting.';
+                    resultMessage.style.color = 'var(--yellow)';
+                    resultDetails.innerHTML = '';
+                    Toast.warning('No face detected — try facing the camera directly');
                 } else {
                     resultIcon.innerHTML = '<i class="bi bi-person-x-fill"></i>';
                     resultIcon.style.color = 'var(--red)';
                     resultName.textContent = 'Not Recognized';
-                    resultMessage.textContent = result.message || 'Face not recognized. Please register first.';
+                    resultMessage.textContent = 'Face detected but not matched. Ensure you are registered and face the camera clearly.';
                     resultMessage.style.color = 'var(--red)';
                     resultDetails.innerHTML = '';
-                    Toast.warning('Face not recognized');
+                    Toast.warning('Face not recognized — please register if you haven\'t');
                 }
 
                 loadTodayRecords();

@@ -7,10 +7,13 @@ from PIL import Image
 import cv2
 
 FACE_SIZE = (150, 150)
-SIMILARITY_THRESHOLD = 0.50
+SIMILARITY_THRESHOLD = 0.42
 
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+)
+face_cascade_alt = cv2.CascadeClassifier(
+    cv2.data.haarcascades + 'haarcascade_frontalface_alt2.xml'
 )
 
 def load_image_from_base64(data_url):
@@ -31,17 +34,18 @@ def _preprocess_gray(image):
 def detect_and_align_face(image):
     gray = _preprocess_gray(image)
 
-    # Try progressively more permissive parameters
-    for (scale, neighbors, min_sz) in [
+    params = [
         (1.1, 5, (80, 80)),
         (1.1, 3, (50, 50)),
         (1.05, 3, (30, 30)),
-    ]:
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=scale, minNeighbors=neighbors, minSize=min_sz)
-        if len(faces) > 0:
-            x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
-            face = gray[y:y+h, x:x+w]
-            return cv2.resize(face, FACE_SIZE)
+    ]
+    for cascade in [face_cascade, face_cascade_alt]:
+        for (scale, neighbors, min_sz) in params:
+            faces = cascade.detectMultiScale(gray, scaleFactor=scale, minNeighbors=neighbors, minSize=min_sz)
+            if len(faces) > 0:
+                x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
+                face = gray[y:y+h, x:x+w]
+                return cv2.resize(face, FACE_SIZE)
     return None
 
 def get_face_encoding(image):

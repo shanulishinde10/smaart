@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Attendance — SMAART</title>
+    <title>My Attendance — Scanora</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,7 +13,7 @@
     <aside class="sidebar">
         <a class="sidebar-brand" href="index.html">
             <div class="sidebar-logo-icon"><i class="bi bi-person-bounding-box"></i></div>
-            SMAART
+            Scanora
         </a>
         <nav class="sidebar-nav"></nav>
         <div class="sidebar-footer">
@@ -24,6 +24,7 @@
     </aside>
 
     <main class="main-content">
+    <div style="padding: 1.75rem 2rem 2rem;">
 
         <!-- Dashboard Hero -->
         <div class="admin-hero-banner" style="margin-bottom:1.25rem;">
@@ -138,6 +139,7 @@
             </div>
         </div>
 
+    </div>
     </main>
 </div>
 
@@ -199,7 +201,7 @@ function updateStats(records) {
     const present = records.filter(r => r.status === 'present').length;
     const absent = records.filter(r => r.status === 'absent').length;
     const pending = records.filter(r => r.status === 'pending').length;
-    const total = present + absent;
+    const total = present + absent + pending;
     const pct = total > 0 ? Math.round((present / total) * 100) : 0;
 
     document.getElementById('statPresent').textContent = present;
