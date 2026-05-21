@@ -15,6 +15,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     const todayCount = document.getElementById('todayCount');
 
     let isCameraRunning = false;
+    let lastLocation = null;
+
+    function getLocation() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) { resolve(null); return; }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+                () => resolve(null),
+                { timeout: 5000 }
+            );
+        });
+    }
 
     // Auto start camera on load
     try {
@@ -53,7 +65,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         waitingText.style.display = 'none';
 
         try {
-            const result = await API.markAttendance(imageData);
+            lastLocation = await getLocation();
+            const result = await API.markAttendance(imageData, lastLocation);
             attendanceResult.style.display = 'block';
             
             attendanceResult.className = 'fade-in';
@@ -66,6 +79,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 resultName.textContent = result.name || 'Unknown';
                 resultMessage.textContent = 'Attendance marked successfully!';
                 resultMessage.className = 'text-success fw-bold';
+                const locationHtml = (result.latitude != null && result.longitude != null)
+                    ? `<div class="d-flex justify-content-between mt-2 border-top border-secondary pt-1">
+                           <span class="text-muted">Location:</span>
+                           <a href="https://www.google.com/maps?q=${result.latitude},${result.longitude}" target="_blank" class="fw-semibold text-info text-decoration-none">
+                               <i class="bi bi-geo-alt-fill me-1"></i>${result.latitude.toFixed(5)}, ${result.longitude.toFixed(5)}
+                           </a>
+                       </div>`
+                    : '';
                 resultDetails.innerHTML = `
                     <div class="d-flex justify-content-between mb-2 border-bottom border-secondary pb-1">
                         <span class="text-muted">Roll No:</span><span class="fw-semibold text-white">${result.roll_no || 'N/A'}</span>
@@ -73,16 +94,26 @@ document.addEventListener('DOMContentLoaded', async function() {
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">Time:</span><span class="fw-semibold text-white">${result.time || new Date().toLocaleTimeString()}</span>
                     </div>
+                    ${locationHtml}
                 `;
                 Toast.success('Attendance marked for ' + (result.name || 'Unknown'));
             } else if (result.status === 'unknown') {
-                resultIcon.innerHTML = '<i class="bi bi-person-x-fill"></i>';
+                const isNoFace = result.message && result.message.toLowerCase().includes('no face');
+                resultIcon.innerHTML = isNoFace
+                    ? '<i class="bi bi-camera-video-off-fill"></i>'
+                    : '<i class="bi bi-person-x-fill"></i>';
                 resultIcon.style.color = '#ef4444';
-                resultName.textContent = 'Unknown Person';
-                resultMessage.textContent = 'Face not recognized. Please register first.';
+                resultName.textContent = isNoFace ? 'No Face Detected' : 'Not Recognized';
+                resultMessage.textContent = isNoFace
+                    ? 'No face detected. Ensure good lighting and face the camera directly.'
+                    : 'Face not recognized.';
                 resultMessage.className = 'text-danger fw-bold';
-                resultDetails.innerHTML = '';
-                Toast.warning('Face not recognized.');
+                resultDetails.innerHTML = isNoFace ? '' :
+                    `<div class="mt-2 text-center">
+                        <small class="text-muted">Not enrolled yet? </small>
+                        <a href="register.html" class="text-info fw-semibold text-decoration-none">Register here</a>
+                     </div>`;
+                Toast.warning(result.message || 'Face not recognized.');
             } else {
                 resultIcon.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i>';
                 resultIcon.style.color = '#f59e0b';

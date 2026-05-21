@@ -86,7 +86,7 @@
                     </div>
                     <i class="bi bi-chevron-right dstat-arrow"></i>
                 </div>
-                <div class="dstat" style="--dsc:var(--purple);">
+                <div class="dstat" style="--dsc:var(--purple);" onclick="switchTab('students')">
                     <div class="dstat-icon" style="background:rgba(61,90,241,0.15);">
                         <i class="bi bi-mortarboard" style="color:var(--purple-light);"></i>
                     </div>
@@ -114,6 +114,7 @@
             <div class="tab-nav">
                 <button class="tab-btn active" data-tab="lectures"><i class="bi bi-easel"></i> Lectures</button>
                 <button class="tab-btn" data-tab="review"><i class="bi bi-clipboard-check"></i> Review Attendance</button>
+                <button class="tab-btn" data-tab="students"><i class="bi bi-people"></i> My Students</button>
             </div>
 
             <!-- Lectures Tab -->
@@ -140,9 +141,15 @@
                                 <label class="form-label">Lecture Title <span class="form-label-opt">(optional)</span></label>
                                 <input class="form-control" id="lectureTitle" placeholder="e.g. Unit 3 — Data Structures">
                             </div>
-                            <div>
-                                <label class="form-label">Date</label>
-                                <input type="date" class="form-control" id="lectureDate" required>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                                <div>
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="lectureDate" required>
+                                </div>
+                                <div>
+                                    <label class="form-label">Time <span class="form-label-opt">(optional)</span></label>
+                                    <input type="time" class="form-control" id="lectureTime">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width:100%;">
                                 <i class="bi bi-plus-circle"></i> Create Lecture
@@ -221,6 +228,69 @@
                 </div>
             </div>
 
+            <!-- My Students Tab -->
+            <div class="tab-pane" id="tab-students">
+                <div class="card">
+                    <!-- Card Header -->
+                    <div class="card-head" style="margin-bottom:1rem;">
+                        <div class="card-head-icon" style="background:rgba(61,90,241,0.12);">
+                            <i class="bi bi-people" style="color:var(--purple-light);"></i>
+                        </div>
+                        <span class="card-head-title">Enrolled Students</span>
+                        <span id="studentCountBadge" class="badge badge-purple" style="margin-left:0.5rem;display:none;"></span>
+                        <button class="icon-btn" style="margin-left:auto;" onclick="loadStudents()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+
+                    <!-- Course Roster Cards -->
+                    <div id="courseRosterCards" class="course-roster-grid" style="display:none;margin-bottom:1.25rem;"></div>
+
+                    <!-- Filters -->
+                    <div class="students-filter-row">
+                        <div style="position:relative;flex:1;min-width:180px;">
+                            <i class="bi bi-search" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;pointer-events:none;"></i>
+                            <input type="text" class="form-control" id="studentSearch"
+                                placeholder="Search by name or roll no…"
+                                style="padding-left:2.1rem;height:36px;font-size:0.82rem;"
+                                oninput="filterStudents()">
+                        </div>
+                        <select class="form-select" id="studentCourseFilter"
+                            style="width:200px;height:36px;font-size:0.82rem;"
+                            onchange="filterStudents()">
+                            <option value="">All Courses</option>
+                        </select>
+                    </div>
+
+                    <!-- Table -->
+                    <div style="overflow-x:auto;margin-top:1rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Roll No</th>
+                                    <th>Course</th>
+                                    <th>Attendance</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:3rem;">
+                                    <div class="skeleton-row" style="max-width:400px;margin:0 auto 0.5rem;"></div>
+                                    <div class="skeleton-row" style="max-width:400px;margin:0 auto;"></div>
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="studentsEmpty" style="display:none;text-align:center;padding:3rem 1rem;color:var(--text-muted);">
+                        <i class="bi bi-person-x" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>
+                        No students found
+                    </div>
+                </div>
+            </div>
+
         </div><!-- /.dash-container -->
     </main>
 </div>
@@ -289,6 +359,7 @@ function switchTab(tabName) {
     document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
     if (tabName === 'review') syncReviewList();
+    if (tabName === 'students' && !studentsLoaded) { studentsLoaded = true; loadStudents(); }
     document.querySelector('.tab-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -299,6 +370,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
         if (btn.dataset.tab === 'review') syncReviewList();
+        if (btn.dataset.tab === 'students' && !studentsLoaded) {
+            studentsLoaded = true;
+            loadStudents();
+        }
     });
 });
 
@@ -329,7 +404,7 @@ async function loadLectures() {
                     <div style="font-weight:700;font-size:0.88rem;color:var(--text-primary);">${l.title}</div>
                     <div style="display:flex;gap:6px;margin-top:4px;">
                         <span class="badge badge-cyan" style="font-size:0.65rem;">${l.course?.code || ''}</span>
-                        <span style="font-size:0.72rem;color:var(--text-muted);">${l.date}</span>
+                        <span style="font-size:0.72rem;color:var(--text-muted);">${l.date}${l.time ? ' · ' + l.time : ''}</span>
                     </div>
                 </div>
                 <button class="btn btn-sm btn-outline" onclick="openReview(${l.id}, ${JSON.stringify(l.title)})">
@@ -351,6 +426,7 @@ document.getElementById('createLectureForm').addEventListener('submit', async (e
         course_id: parseInt(document.getElementById('lectureCourse').value),
         title: document.getElementById('lectureTitle').value.trim(),
         date: document.getElementById('lectureDate').value,
+        time: document.getElementById('lectureTime').value,
     };
 
     try {
@@ -358,6 +434,7 @@ document.getElementById('createLectureForm').addEventListener('submit', async (e
         Toast.success('Lecture created');
         e.target.reset();
         document.getElementById('lectureDate').value = todayStr;
+        document.getElementById('lectureTime').value = '';
         loadLectures();
         loadDashboard();
     } catch (err) {
@@ -407,11 +484,11 @@ async function openReview(lectureId, title) {
 function renderReviewTable(records) {
     const area = document.getElementById('attendanceReviewArea');
     const pendingBadge = document.getElementById('pendingBadge');
-    const pendingCount = records.filter(r => r.status === 'pending').length;
+    const actionCount = records.filter(r => r.status === 'pending' || r.status === 'not_scanned').length;
 
-    if (pendingCount > 0) {
+    if (actionCount > 0) {
         pendingBadge.style.display = 'inline-flex';
-        pendingBadge.textContent = `${pendingCount} pending`;
+        pendingBadge.textContent = `${actionCount} pending`;
         document.getElementById('bulkActions').style.display = 'block';
     } else {
         pendingBadge.style.display = 'none';
@@ -419,7 +496,7 @@ function renderReviewTable(records) {
     }
 
     if (!records.length) {
-        area.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:3rem;font-size:0.85rem;">No students have scanned for this lecture yet.</div>';
+        area.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:3rem;font-size:0.85rem;">No students are enrolled in this course yet.</div>';
         return;
     }
 
@@ -437,11 +514,11 @@ function renderReviewTable(records) {
             </thead>
             <tbody>
                 ${records.map(r => `
-                    <tr id="row-${r.id}">
+                    <tr id="row-${r.id || 'ns-' + r.student_id}">
                         <td><strong style="color:var(--text-primary);">${r.student_name || '—'}</strong></td>
                         <td><span class="badge badge-purple" style="font-size:0.7rem;">${r.student_roll_no || '—'}</span></td>
                         <td style="color:var(--text-muted);font-size:0.78rem;">${r.scan_time ? new Date(r.scan_time).toLocaleTimeString() : '—'}</td>
-                        <td><span class="status-badge status-${r.status}" id="status-${r.id}">${r.status}</span></td>
+                        <td><span class="status-badge status-${r.status}">${r.status === 'not_scanned' ? 'Not Scanned' : r.status}</span></td>
                         <td>
                             ${r.status === 'pending' ? `
                                 <div style="display:flex;gap:4px;">
@@ -451,6 +528,17 @@ function renderReviewTable(records) {
                                     </button>
                                     <button class="btn btn-sm" style="background:rgba(224,49,49,0.1);border:1px solid rgba(224,49,49,0.3);color:var(--red);"
                                         onclick="reviewOne(${r.id}, 'absent')">
+                                        <i class="bi bi-x-lg"></i> Absent
+                                    </button>
+                                </div>
+                            ` : r.status === 'not_scanned' ? `
+                                <div style="display:flex;gap:4px;">
+                                    <button class="btn btn-sm" style="background:rgba(12,166,120,0.1);border:1px solid rgba(12,166,120,0.3);color:var(--green);"
+                                        onclick="markManual(${r.student_id}, 'present')">
+                                        <i class="bi bi-check-lg"></i> Present
+                                    </button>
+                                    <button class="btn btn-sm" style="background:rgba(224,49,49,0.1);border:1px solid rgba(224,49,49,0.3);color:var(--red);"
+                                        onclick="markManual(${r.student_id}, 'absent')">
                                         <i class="bi bi-x-lg"></i> Absent
                                     </button>
                                 </div>
@@ -475,12 +563,27 @@ async function reviewOne(recordId, status) {
     } catch (err) { Toast.error(err.message); }
 }
 
-async function bulkApproveAll() {
-    const pending = currentAttendanceRecords.filter(r => r.status === 'pending');
-    if (!pending.length) { Toast.info('No pending records'); return; }
+async function markManual(studentId, status) {
     try {
-        await Promise.all(pending.map(r => API.professor.reviewAttendance(r.id, 'present')));
-        Toast.success(`${pending.length} students marked present`);
+        await API.professor.markAttendance(currentLectureId, studentId, status);
+        Toast.success(`Marked ${status}`);
+        const { records } = await API.professor.getLectureAttendance(currentLectureId);
+        currentAttendanceRecords = records;
+        renderReviewTable(records);
+        loadDashboard();
+    } catch (err) { Toast.error(err.message); }
+}
+
+async function bulkApproveAll() {
+    const actionable = currentAttendanceRecords.filter(r => r.status === 'pending' || r.status === 'not_scanned');
+    if (!actionable.length) { Toast.info('No pending records'); return; }
+    try {
+        await Promise.all(actionable.map(r =>
+            r.status === 'pending'
+                ? API.professor.reviewAttendance(r.id, 'present')
+                : API.professor.markAttendance(currentLectureId, r.student_id, 'present')
+        ));
+        Toast.success(`${actionable.length} students marked present`);
         const { records } = await API.professor.getLectureAttendance(currentLectureId);
         currentAttendanceRecords = records;
         renderReviewTable(records);
@@ -489,18 +592,158 @@ async function bulkApproveAll() {
 }
 
 async function bulkRejectAll() {
-    const pending = currentAttendanceRecords.filter(r => r.status === 'pending');
-    if (!pending.length) { Toast.info('No pending records'); return; }
-    if (!confirm(`Mark ${pending.length} students as absent?`)) return;
+    const actionable = currentAttendanceRecords.filter(r => r.status === 'pending' || r.status === 'not_scanned');
+    if (!actionable.length) { Toast.info('No pending records'); return; }
+    if (!confirm(`Mark ${actionable.length} students as absent?`)) return;
     try {
-        await Promise.all(pending.map(r => API.professor.reviewAttendance(r.id, 'absent')));
-        Toast.success(`${pending.length} students marked absent`);
+        await Promise.all(actionable.map(r =>
+            r.status === 'pending'
+                ? API.professor.reviewAttendance(r.id, 'absent')
+                : API.professor.markAttendance(currentLectureId, r.student_id, 'absent')
+        ));
+        Toast.success(`${actionable.length} students marked absent`);
         const { records } = await API.professor.getLectureAttendance(currentLectureId);
         currentAttendanceRecords = records;
         renderReviewTable(records);
         loadDashboard();
     } catch (err) { Toast.error(err.message); }
 }
+
+// ── My Students ────────────────────────────────────────────────────────
+let allStudents = [];
+
+async function loadStudents() {
+    const tbody = document.getElementById('studentsTableBody');
+    const emptyEl = document.getElementById('studentsEmpty');
+    tbody.innerHTML = `<tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--text-muted);">
+        <i class="bi bi-hourglass-split" style="font-size:1.4rem;display:block;margin-bottom:0.4rem;"></i>Loading…</td></tr>`;
+    emptyEl.style.display = 'none';
+
+    try {
+        const { students } = await API.professor.getStudents();
+        allStudents = students;
+
+        // Populate course filter
+        const filterSel = document.getElementById('studentCourseFilter');
+        const coursesInData = [...new Map(students.map(s => [s.course?.id, s.course]).filter(([id]) => id)).values()];
+        filterSel.innerHTML = '<option value="">All Courses</option>' +
+            coursesInData.map(c => `<option value="${c.id}">${c.name} (${c.code})</option>`).join('');
+
+        renderStudentsTable(students);
+        renderCourseCards();
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:2rem;">${err.message}</td></tr>`;
+    }
+}
+
+function renderCourseCards() {
+    const grid = document.getElementById('courseRosterCards');
+    const coursesMap = new Map();
+    allStudents.forEach(s => {
+        if (!s.course) return;
+        if (!coursesMap.has(s.course.id)) coursesMap.set(s.course.id, { ...s.course, count: 0 });
+        coursesMap.get(s.course.id).count++;
+    });
+    const courses = [...coursesMap.values()];
+    if (!courses.length) { grid.style.display = 'none'; return; }
+
+    const activeCourse = document.getElementById('studentCourseFilter').value;
+    grid.style.display = 'grid';
+    grid.innerHTML = [
+        `<div class="course-roster-card ${!activeCourse ? 'crc-active' : ''}" onclick="selectCourse('')">
+            <div class="crc-icon"><i class="bi bi-collection"></i></div>
+            <div class="crc-info">
+                <div class="crc-name">All Courses</div>
+                <div class="crc-count">${allStudents.length} student${allStudents.length !== 1 ? 's' : ''}</div>
+            </div>
+        </div>`,
+        ...courses.map(c => `
+            <div class="course-roster-card ${String(activeCourse) === String(c.id) ? 'crc-active' : ''}" onclick="selectCourse('${c.id}')">
+                <div class="crc-icon"><i class="bi bi-book"></i></div>
+                <div class="crc-info">
+                    <div class="crc-code">${c.code}</div>
+                    <div class="crc-name">${c.name}</div>
+                    <div class="crc-count">${c.count} student${c.count !== 1 ? 's' : ''}</div>
+                </div>
+            </div>
+        `)
+    ].join('');
+}
+
+function selectCourse(courseId) {
+    document.getElementById('studentCourseFilter').value = courseId;
+    filterStudents();
+    renderCourseCards();
+}
+
+function filterStudents() {
+    const q = document.getElementById('studentSearch').value.trim().toLowerCase();
+    const courseId = document.getElementById('studentCourseFilter').value;
+    let filtered = allStudents;
+    if (q) {
+        filtered = filtered.filter(s =>
+            s.name.toLowerCase().includes(q) || s.roll_no.toLowerCase().includes(q)
+        );
+    }
+    if (courseId) {
+        filtered = filtered.filter(s => String(s.course?.id) === courseId);
+    }
+    renderStudentsTable(filtered);
+}
+
+function renderStudentsTable(students) {
+    const tbody = document.getElementById('studentsTableBody');
+    const emptyEl = document.getElementById('studentsEmpty');
+    const badge = document.getElementById('studentCountBadge');
+
+    badge.textContent = `${students.length} student${students.length !== 1 ? 's' : ''}`;
+    badge.style.display = 'inline-flex';
+
+    if (!students.length) {
+        tbody.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
+    tbody.innerHTML = students.map((s, i) => {
+        const pct = s.attendance_pct;
+        const pctColor = pct === null ? 'var(--text-muted)' : pct >= 75 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+        const pctBg   = pct === null ? 'var(--bg-elevated)' : pct >= 75 ? 'rgba(12,166,120,0.1)' : pct >= 50 ? 'rgba(230,119,0,0.1)' : 'rgba(224,49,49,0.1)';
+        const pctBorder = pct === null ? 'var(--border)' : pct >= 75 ? 'rgba(12,166,120,0.3)' : pct >= 50 ? 'rgba(230,119,0,0.3)' : 'rgba(224,49,49,0.3)';
+        const pctText = pct !== null ? `${pct}%` : '—';
+        const joined = s.created_at ? new Date(s.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+
+        return `<tr>
+            <td style="color:var(--text-muted);font-size:0.78rem;font-weight:600;">${i + 1}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:0.625rem;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--purple-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:700;flex-shrink:0;">
+                        ${s.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:0.875rem;color:var(--text-primary);">${s.name}</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);">${s.email}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="badge badge-purple" style="font-size:0.7rem;">${s.roll_no}</span></td>
+            <td><span class="badge badge-cyan" style="font-size:0.7rem;">${s.course?.code || '—'}</span></td>
+            <td>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:0.72rem;font-weight:700;background:${pctBg};color:${pctColor};border:1px solid ${pctBorder};">
+                        ${pctText}
+                    </span>
+                    ${pct !== null ? `<span style="font-size:0.7rem;color:var(--text-muted);">${s.attendance_present}/${s.attendance_total}</span>` : ''}
+                </div>
+            </td>
+            <td style="font-size:0.78rem;color:var(--text-muted);">${joined}</td>
+        </tr>`;
+    }).join('');
+}
+
+// Load students when tab is first opened
+let studentsLoaded = false;
 
 init();
 </script>
@@ -775,6 +1018,79 @@ init();
     color: var(--text-muted);
     font-size: 0.85rem;
     line-height: 1.7;
+}
+
+/* ── Course Roster Cards ──────────────────────────────────── */
+.course-roster-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.75rem;
+}
+.course-roster-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.course-roster-card:hover {
+    border-color: var(--purple-light);
+    background: rgba(61,90,241,0.06);
+    transform: translateY(-2px);
+}
+.course-roster-card.crc-active {
+    border-color: var(--primary);
+    background: rgba(61,90,241,0.1);
+}
+.crc-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: rgba(61,90,241,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--purple-light);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    transition: background 0.18s, color 0.18s;
+}
+.crc-active .crc-icon {
+    background: var(--primary);
+    color: #fff;
+}
+.crc-info { min-width: 0; }
+.crc-code {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--primary);
+    margin-bottom: 1px;
+}
+.crc-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+.crc-count {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ── Students Filter Row ──────────────────────────────────── */
+.students-filter-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 </style>
 </body>

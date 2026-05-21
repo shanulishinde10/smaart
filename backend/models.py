@@ -99,6 +99,7 @@ class Lecture(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     title = db.Column(db.String(200))
     date = db.Column(db.Date, nullable=False, default=date.today)
+    time = db.Column(db.Time, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     professor = db.relationship('Professor')
@@ -113,6 +114,7 @@ class Lecture(db.Model):
             'course': self.course.to_dict() if self.course else None,
             'title': self.title or (f"{self.course.name} Lecture" if self.course else 'Lecture'),
             'date': self.date.isoformat() if self.date else None,
+            'time': self.time.strftime('%H:%M') if self.time else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -126,6 +128,8 @@ class AttendanceRecord(db.Model):
     scan_time = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='pending')  # pending | present | absent
     reviewed_at = db.Column(db.DateTime)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
 
     student = db.relationship('Student')
     lecture = db.relationship('Lecture')
@@ -142,4 +146,6 @@ class AttendanceRecord(db.Model):
             'scan_time': self.scan_time.isoformat() if self.scan_time else None,
             'status': self.status,
             'reviewed_at': self.reviewed_at.isoformat() if self.reviewed_at else None,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
         }

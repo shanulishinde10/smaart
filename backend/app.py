@@ -70,11 +70,27 @@ def get_professor(user_id):
 # ── DB init & seed ─────────────────────────────────────────────────────
 
 with app.app_context():
-    from sqlalchemy import inspect as sa_inspect
+    from sqlalchemy import inspect as sa_inspect, text
     existing = sa_inspect(db.engine).get_table_names()
     if 'users' not in existing:
         db.drop_all()
     db.create_all()
+
+    # Migrate: add location columns if not present
+    cols = [c['name'] for c in sa_inspect(db.engine).get_columns('attendance_records')]
+    with db.engine.connect() as conn:
+        if 'latitude' not in cols:
+            conn.execute(text('ALTER TABLE attendance_records ADD COLUMN latitude REAL'))
+        if 'longitude' not in cols:
+            conn.execute(text('ALTER TABLE attendance_records ADD COLUMN longitude REAL'))
+        conn.commit()
+
+    # Migrate: add time column to lectures if not present
+    lecture_cols = [c['name'] for c in sa_inspect(db.engine).get_columns('lectures')]
+    with db.engine.connect() as conn:
+        if 'time' not in lecture_cols:
+            conn.execute(text('ALTER TABLE lectures ADD COLUMN time TEXT'))
+        conn.commit()
 
     if not User.query.filter_by(role='admin').first():
         admin = User(username='admin', email='admin@scanora.edu', role='admin')
@@ -225,6 +241,9 @@ def face_scan():
     if not lecture_id:
         return jsonify({'error': 'lecture_id is required'}), 400
 
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+
     lecture = db.session.get(Lecture, int(lecture_id))
     if not lecture:
         return jsonify({'error': 'Lecture not found'}), 404
@@ -264,6 +283,8 @@ def face_scan():
         date=date.today(),
         scan_time=datetime.now(),
         status='pending',
+        latitude=latitude,
+        longitude=longitude,
     )
     db.session.add(record)
     db.session.commit()
@@ -274,6 +295,8 @@ def face_scan():
         'name': student.name,
         'roll_no': student.roll_no,
         'time': datetime.now().strftime('%H:%M:%S'),
+        'latitude': latitude,
+        'longitude': longitude,
     }), 200
 
 
@@ -484,6 +507,7 @@ def create_lecture():
     course_id = data.get('course_id')
     title = data.get('title', '').strip()
     lecture_date = data.get('date', date.today().isoformat())
+    lecture_time_str = data.get('time', '').strip()
 
     if not course_id:
         return jsonify({'error': 'Course is required'}), 400
@@ -497,11 +521,21 @@ def create_lecture():
     except ValueError:
         return jsonify({'error': 'Invalid date format'}), 400
 
+    lecture_time = None
+    if lecture_time_str:
+        try:
+            from datetime import time as dtime
+            h, m = lecture_time_str.split(':')
+            lecture_time = dtime(int(h), int(m))
+        except (ValueError, AttributeError):
+            return jsonify({'error': 'Invalid time format'}), 400
+
     lecture = Lecture(
         professor_id=professor.id,
         course_id=int(course_id),
         title=title or f"{course.name} Lecture",
         date=lecture_date,
+        time=lecture_time,
     )
     db.session.add(lecture)
     db.session.commit()
@@ -537,8 +571,70 @@ def professor_lecture_attendance(lid):
     if lecture.professor_id != professor.id:
         return jsonify({'error': 'Not authorized'}), 403
 
-    records = AttendanceRecord.query.filter_by(lecture_id=lid).all()
-    return jsonify({'records': [r.to_dict() for r in records], 'lecture': lecture.to_dict()})
+    existing = {r.student_id: r for r in AttendanceRecord.query.filter_by(lecture_id=lid).all()}
+    students = Student.query.filter_by(course_id=lecture.course_id).order_by(Student.name).all()
+
+    records = []
+    for student in students:
+        if student.id in existing:
+            records.append(existing[student.id].to_dict())
+        else:
+            records.append({
+                'id': None,
+                'student_id': student.id,
+                'student_name': student.name,
+                'student_roll_no': student.roll_no,
+                'lecture_id': lid,
+                'scan_time': None,
+                'status': 'not_scanned',
+                'reviewed_at': None,
+                'latitude': None,
+                'longitude': None,
+            })
+
+    return jsonify({'records': records, 'lecture': lecture.to_dict()})
+
+
+@app.route('/api/professor/lectures/<int:lid>/attendance', methods=['POST'])
+@require_auth(['professor'])
+def professor_manual_attendance(lid):
+    professor = get_professor(request.user_id)
+    lecture = db.session.get(Lecture, lid)
+    if not lecture:
+        return jsonify({'error': 'Lecture not found'}), 404
+    if lecture.professor_id != professor.id:
+        return jsonify({'error': 'Not authorized'}), 403
+
+    data = request.get_json() or {}
+    student_id = data.get('student_id')
+    status = data.get('status')
+
+    if not student_id:
+        return jsonify({'error': 'student_id is required'}), 400
+    if status not in ('present', 'absent'):
+        return jsonify({'error': 'Status must be present or absent'}), 400
+
+    student = db.session.get(Student, int(student_id))
+    if not student or student.course_id != lecture.course_id:
+        return jsonify({'error': 'Student not enrolled in this course'}), 403
+
+    existing = AttendanceRecord.query.filter_by(student_id=student_id, lecture_id=lid).first()
+    if existing:
+        existing.status = status
+        existing.reviewed_at = datetime.now()
+        record = existing
+    else:
+        record = AttendanceRecord(
+            student_id=int(student_id),
+            lecture_id=lid,
+            date=lecture.date,
+            scan_time=None,
+            status=status,
+            reviewed_at=datetime.now(),
+        )
+        db.session.add(record)
+    db.session.commit()
+    return jsonify({'record': record.to_dict()})
 
 
 @app.route('/api/professor/attendance/<int:rid>', methods=['PUT'])
@@ -586,6 +682,44 @@ def professor_stats():
         'total_courses': len(professor.courses),
         'total_students': student_count,
     })
+
+
+@app.route('/api/professor/students', methods=['GET'])
+@require_auth(['professor'])
+def professor_get_students():
+    professor = get_professor(request.user_id)
+    if not professor:
+        return jsonify({'error': 'Professor profile not found'}), 404
+
+    course_ids = [c.id for c in professor.courses]
+    if not course_ids:
+        return jsonify({'students': []})
+
+    course_id_filter = request.args.get('course_id')
+    q = Student.query.filter(Student.course_id.in_(course_ids))
+    if course_id_filter:
+        try:
+            cid = int(course_id_filter)
+            if cid in course_ids:
+                q = q.filter_by(course_id=cid)
+        except ValueError:
+            pass
+
+    students = q.order_by(Student.name).all()
+
+    result = []
+    for s in students:
+        total = AttendanceRecord.query.filter_by(student_id=s.id).filter(
+            AttendanceRecord.status.in_(['present', 'absent'])
+        ).count()
+        present = AttendanceRecord.query.filter_by(student_id=s.id, status='present').count()
+        d = s.to_dict()
+        d['attendance_total'] = total
+        d['attendance_present'] = present
+        d['attendance_pct'] = round(present / total * 100) if total > 0 else None
+        result.append(d)
+
+    return jsonify({'students': result})
 
 
 # ── Student ────────────────────────────────────────────────────────────

@@ -97,6 +97,16 @@ const API = {
         reviewAttendance(id, status) {
             return API.request(`/professor/attendance/${id}`, { method: 'PUT', body: JSON.stringify({ status }) });
         },
+        markAttendance(lectureId, studentId, status) {
+            return API.request(`/professor/lectures/${lectureId}/attendance`, {
+                method: 'POST',
+                body: JSON.stringify({ student_id: studentId, status }),
+            });
+        },
+        getStudents(courseId) {
+            const q = courseId ? `?course_id=${courseId}` : '';
+            return API.request(`/professor/students${q}`);
+        },
     },
 
     // ── Student ────────────────────────────────────────────────────────
@@ -106,10 +116,15 @@ const API = {
     },
 
     // ── Legacy compat for existing attendance.js + index stats ─────────
-    markAttendance(imageData) {
+    markAttendance(imageData, location = null) {
         return this.request('/scan', {
             method: 'POST',
-            body: JSON.stringify({ image: imageData, lecture_id: window._activeLectureId || null }),
+            body: JSON.stringify({
+                image: imageData,
+                lecture_id: window._activeLectureId || null,
+                latitude: location ? location.latitude : null,
+                longitude: location ? location.longitude : null,
+            }),
         });
     },
 
