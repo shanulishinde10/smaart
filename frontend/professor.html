@@ -188,11 +188,19 @@
                                 <i class="bi bi-easel" style="color:var(--cyan);"></i>
                             </div>
                             <span class="card-head-title">Select Lecture</span>
+                            <button class="icon-btn" style="margin-left:auto;" onclick="loadReviewLectures()" title="Refresh">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
+                            <input type="date" class="form-control" id="reviewDateFilter" style="flex:1;height:34px;font-size:0.8rem;">
+                            <button class="btn btn-primary btn-sm" onclick="loadReviewLectures()">
+                                <i class="bi bi-funnel"></i>
+                            </button>
                         </div>
                         <div id="reviewLectureList" style="display:flex;flex-direction:column;gap:0.5rem;">
-                            <div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1.5rem 1rem;">
-                                Switch to Lectures tab to load today's sessions
-                            </div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
                         </div>
                     </div>
 
@@ -339,6 +347,7 @@ async function init() {
     }
 
     document.getElementById('lectureDate').value = todayStr;
+    document.getElementById('reviewDateFilter').value = todayStr;
     loadDashboard();
     loadLectures();
 }
@@ -358,7 +367,7 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
-    if (tabName === 'review') syncReviewList();
+    if (tabName === 'review') loadReviewLectures();
     if (tabName === 'students' && !studentsLoaded) { studentsLoaded = true; loadStudents(); }
     document.querySelector('.tab-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -369,7 +378,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'review') syncReviewList();
+        if (btn.dataset.tab === 'review') loadReviewLectures();
         if (btn.dataset.tab === 'students' && !studentsLoaded) {
             studentsLoaded = true;
             loadStudents();
@@ -407,11 +416,18 @@ async function loadLectures() {
                         <span style="font-size:0.72rem;color:var(--text-muted);">${l.date}${l.time ? ' · ' + l.time : ''}</span>
                     </div>
                 </div>
-                <button class="btn btn-sm btn-outline" onclick="openReview(${l.id}, ${JSON.stringify(l.title)})">
+                <button class="btn btn-sm btn-outline lec-review-btn" data-lid="${l.id}">
                     <i class="bi bi-clipboard-check"></i> Review
                 </button>
             </div>
         `).join('');
+        list.querySelectorAll('.lec-review-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lid = parseInt(btn.dataset.lid);
+                const lec = loadedLectures.find(l => l.id === lid);
+                if (lec) openReview(lid, lec.title);
+            });
+        });
     } catch (err) {
         list.innerHTML = `<div style="color:var(--red);font-size:0.82rem;text-align:center;padding:1rem;">${err.message}</div>`;
     }
@@ -443,30 +459,62 @@ document.getElementById('createLectureForm').addEventListener('submit', async (e
     }
 });
 
-function syncReviewList() {
+let reviewLectures = [];
+
+async function loadReviewLectures() {
     const list = document.getElementById('reviewLectureList');
-    if (!loadedLectures.length) {
-        list.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1rem;">No lectures loaded. Use the Lectures tab first.</div>';
+    const dateVal = document.getElementById('reviewDateFilter').value || todayStr;
+    list.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div>';
+    try {
+        const { lectures } = await API.professor.getLectures(dateVal);
+        reviewLectures = lectures;
+        renderReviewLectureList();
+    } catch (err) {
+        list.innerHTML = `<div style="color:var(--red);font-size:0.82rem;text-align:center;padding:1rem;">${err.message}</div>`;
+    }
+}
+
+function renderReviewLectureList() {
+    const list = document.getElementById('reviewLectureList');
+    if (!reviewLectures.length) {
+        list.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1.5rem 1rem;">No lectures for this date.</div>';
         return;
     }
-    list.innerHTML = loadedLectures.map(l => `
-        <button class="btn btn-sm w-100" style="justify-content:flex-start;text-align:left;background:${currentLectureId === l.id ? 'rgba(12,166,120,0.1)' : 'var(--bg-elevated)'};border:1px solid ${currentLectureId === l.id ? 'var(--cyan)' : 'var(--border)'};color:var(--text-primary);padding:0.75rem;border-radius:var(--r-md);margin-bottom:0;"
-            onclick="openReview(${l.id}, ${JSON.stringify(l.title)})">
-            <i class="bi bi-easel" style="color:var(--cyan);margin-right:6px;"></i>
-            <div>
+    list.innerHTML = reviewLectures.map(l => `
+        <button class="review-lec-btn btn btn-sm w-100"
+            data-lid="${l.id}"
+            style="justify-content:flex-start;text-align:left;background:${currentLectureId === l.id ? 'rgba(12,166,120,0.1)' : 'var(--bg-elevated)'};border:1px solid ${currentLectureId === l.id ? 'var(--cyan)' : 'var(--border)'};color:var(--text-primary);padding:0.75rem;border-radius:var(--r-md);margin-bottom:0;cursor:pointer;">
+            <i class="bi bi-easel" style="color:var(--cyan);margin-right:6px;flex-shrink:0;"></i>
+            <div style="text-align:left;">
                 <div style="font-size:0.82rem;font-weight:700;">${l.title}</div>
                 <div style="font-size:0.7rem;color:var(--text-muted);">${l.course?.code || ''} · ${l.date}</div>
             </div>
         </button>
     `).join('');
+
+    list.querySelectorAll('.review-lec-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lid = parseInt(btn.dataset.lid);
+            const lec = reviewLectures.find(l => l.id === lid);
+            if (lec) openReview(lid, lec.title);
+        });
+    });
 }
 
 async function openReview(lectureId, title) {
     currentLectureId = lectureId;
     document.getElementById('reviewTitle').textContent = title;
 
-    switchTab('review');
-    syncReviewList();
+    // Switch to review tab only if not already active
+    if (!document.getElementById('tab-review').classList.contains('active')) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelector('[data-tab="review"]').classList.add('active');
+        document.getElementById('tab-review').classList.add('active');
+        await loadReviewLectures();
+    } else {
+        renderReviewLectureList();
+    }
 
     const area = document.getElementById('attendanceReviewArea');
     area.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;"><i class="bi bi-hourglass-split" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading...</div>';
